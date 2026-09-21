@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace Juego_UNO
 {
-    public partial class Form1 : Form
+    public partial class Ventana : Form
     {
-        public Form1()
+        public Ventana()
         {
             InitializeComponent();
         }

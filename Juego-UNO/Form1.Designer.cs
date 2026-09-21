@@ -1,6 +1,6 @@
 ﻿namespace Juego_UNO
 {
-    partial class Form1
+    partial class Ventana
     {
         /// <summary>
         /// Variable del diseñador necesaria.
@@ -28,10 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Ventana));
+            this.SuspendLayout();
+            // 
+            // Ventana
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "Ventana";
+            this.Text = "UNO";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
