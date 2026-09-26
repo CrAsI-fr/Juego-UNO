@@ -51,6 +51,7 @@
             this.lblJugador3 = new System.Windows.Forms.Label();
             this.lblJugador4 = new System.Windows.Forms.Label();
             this.button9 = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -61,7 +62,7 @@
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(470, 592);
+            this.comboBox1.Location = new System.Drawing.Point(470, 666);
             this.comboBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 28);
@@ -69,7 +70,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(470, 440);
+            this.pictureBox1.Location = new System.Drawing.Point(470, 514);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(122, 148);
@@ -105,7 +106,7 @@
             // 
             // pictureBox4
             // 
-            this.pictureBox4.Location = new System.Drawing.Point(449, 261);
+            this.pictureBox4.Location = new System.Drawing.Point(454, 262);
             this.pictureBox4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pictureBox4.Name = "pictureBox4";
             this.pictureBox4.Size = new System.Drawing.Size(161, 174);
@@ -115,7 +116,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(435, 628);
+            this.button1.Location = new System.Drawing.Point(435, 702);
             this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 35);
@@ -126,7 +127,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(540, 628);
+            this.button2.Location = new System.Drawing.Point(540, 702);
             this.button2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(127, 35);
@@ -146,7 +147,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(736, 422);
+            this.button4.Location = new System.Drawing.Point(784, 422);
             this.button4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 35);
@@ -156,7 +157,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(197, 422);
+            this.button5.Location = new System.Drawing.Point(173, 422);
             this.button5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(127, 35);
@@ -222,24 +223,14 @@
             this.button8.Text = "Robar carta";
             this.button8.UseVisualStyleBackColor = true;
             // 
-            // button9
-            // 
-            this.button9.Location = new System.Drawing.Point(819, 76);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(140, 39);
-            this.button9.TabIndex = 18;
-            this.button9.Text = "Empezar juego";
-            this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
-            // 
             // lblJugador1
             // 
             this.lblJugador1.AutoSize = true;
             this.lblJugador1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblJugador1.ForeColor = System.Drawing.Color.White;
-            this.lblJugador1.Location = new System.Drawing.Point(597, 596);
+            this.lblJugador1.Location = new System.Drawing.Point(597, 670);
             this.lblJugador1.Name = "lblJugador1";
-            this.lblJugador1.Size = new System.Drawing.Size(81, 20);
+            this.lblJugador1.Size = new System.Drawing.Size(89, 20);
             this.lblJugador1.TabIndex = 18;
             this.lblJugador1.Text = "Jugador 1";
             // 
@@ -250,7 +241,7 @@
             this.lblJugador2.ForeColor = System.Drawing.Color.White;
             this.lblJugador2.Location = new System.Drawing.Point(946, 384);
             this.lblJugador2.Name = "lblJugador2";
-            this.lblJugador2.Size = new System.Drawing.Size(81, 20);
+            this.lblJugador2.Size = new System.Drawing.Size(89, 20);
             this.lblJugador2.TabIndex = 19;
             this.lblJugador2.Text = "Jugador 2";
             // 
@@ -261,7 +252,7 @@
             this.lblJugador3.ForeColor = System.Drawing.Color.White;
             this.lblJugador3.Location = new System.Drawing.Point(597, 170);
             this.lblJugador3.Name = "lblJugador3";
-            this.lblJugador3.Size = new System.Drawing.Size(81, 20);
+            this.lblJugador3.Size = new System.Drawing.Size(89, 20);
             this.lblJugador3.TabIndex = 20;
             this.lblJugador3.Text = "Jugador 3";
             // 
@@ -272,16 +263,36 @@
             this.lblJugador4.ForeColor = System.Drawing.Color.White;
             this.lblJugador4.Location = new System.Drawing.Point(249, 384);
             this.lblJugador4.Name = "lblJugador4";
-            this.lblJugador4.Size = new System.Drawing.Size(81, 20);
+            this.lblJugador4.Size = new System.Drawing.Size(89, 20);
             this.lblJugador4.TabIndex = 21;
             this.lblJugador4.Text = "Jugador 4";
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(819, 76);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(140, 39);
+            this.button9.TabIndex = 18;
+            this.button9.Text = "Empezar juego";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(507, 450);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(51, 20);
+            this.label1.TabIndex = 22;
+            this.label1.Text = "label1";
             // 
             // Ventana
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
-            this.ClientSize = new System.Drawing.Size(1074, 676);
+            this.ClientSize = new System.Drawing.Size(1074, 775);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.button9);
             this.Controls.Add(this.lblJugador4);
             this.Controls.Add(this.lblJugador3);
@@ -342,6 +353,7 @@
         private System.Windows.Forms.Label lblJugador3;
         private System.Windows.Forms.Label lblJugador4;
         private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.Label label1;
     }
 }
 
