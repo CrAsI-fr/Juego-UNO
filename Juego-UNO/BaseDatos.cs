@@ -144,6 +144,26 @@ namespace Juego_UNO
         }
 
         /// <summary>
+        /// Devuelve la posicion en la mesa de cada jugador de la partida (id_jugador -> posicion).
+        /// </summary>
+        public static Dictionary<int, int> ObtenerPosiciones(int idPartida)
+        {
+            var posiciones = new Dictionary<int, int>();
+            using (var conexion = AbrirConexion())
+            using (var comando = new MySqlCommand(
+                "select id_jugador, posicion from partida_jugador where id_partida = @partida", conexion))
+            {
+                comando.Parameters.AddWithValue("@partida", idPartida);
+                using (var lector = comando.ExecuteReader())
+                {
+                    while (lector.Read())
+                        posiciones[lector.GetInt32(0)] = lector.GetInt32(1);
+                }
+            }
+            return posiciones;
+        }
+
+        /// <summary>
         /// Guarda un movimiento en el log (tabla jugada) con el siguiente numero de jugada.
         /// tipoAccion debe ser uno de los valores del enum de jugada.tipo_accion.
         /// </summary>
