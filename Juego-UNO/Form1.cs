@@ -212,9 +212,12 @@ namespace Juego_UNO
                     break;
 
                 case "+2":
+                    DarCartas(Siguiente(turno), 2);
+                    turno = Siguiente(turno, 2);
+                    break;
                 case "+4":
                     // El siguiente roba y pierde su turno
-                    DarCartas(Siguiente(turno), carta.Efecto == "+2" ? 2 : 4);
+                    DarCartas(Siguiente(turno), 4);
                     turno = Siguiente(turno, 2);
                     break;
 
