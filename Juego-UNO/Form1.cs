@@ -20,8 +20,8 @@ namespace Juego_UNO
 
         private List<Jugador> jugadores = new List<Jugador>();
         private List<Carta> mazo = new List<Carta>();
-        // Pila de descarte; la ultima carta es la que esta boca arriba (label1)
-        private List<Carta> descarte = new List<Carta>();
+        // Carta boca arriba (label1). Al jugarse otra encima, esta regresa al mazo.
+        private Carta cartaArriba;
         private int idPartida;
         private bool partidaEnCurso;
 
@@ -91,9 +91,9 @@ namespace Juego_UNO
                 Barajar(mazo);
                 Repartir();
 
-                descarte = new List<Carta> { SacarCartaInicial() };
+                cartaArriba = SacarCartaInicial();
 
-                idPartida = BaseDatos.RegistrarPartida(jugadores, descarte.Last());
+                idPartida = BaseDatos.RegistrarPartida(jugadores, cartaArriba);
                 partidaEnCurso = true;
             }
             catch (MySqlException ex)
@@ -108,7 +108,8 @@ namespace Juego_UNO
         }
 
         /// <summary>
-        /// El jugador tira la carta seleccionada en su combo a la pila de descarte.
+        /// El jugador tira la carta seleccionada en su combo sobre label1.
+        /// La carta que estaba arriba regresa al mazo en una posicion aleatoria.
         /// </summary>
         private void JugarCarta(int posicion)
         {
@@ -132,9 +133,11 @@ namespace Juego_UNO
             }
 
             jugador.Mano.Remove(carta);
-            descarte.Add(carta);
+            RegresarAlMazo(cartaArriba);
+            cartaArriba = carta;
             MostrarMano(posicion);
             MostrarDescarte();
+            ActualizarTitulo();
 
             if (jugador.Mano.Count == 0)
                 TerminarConGanador(jugador);
@@ -145,9 +148,7 @@ namespace Juego_UNO
         /// </summary>
         private void RobarCarta(int posicion)
         {
-            if (mazo.Count == 0)
-                RellenarMazo();
-
+            // Solo pasa si todas las cartas estan en las manos de los jugadores
             if (mazo.Count == 0)
             {
                 MessageBox.Show("Ya no quedan cartas para robar.", "UNO",
@@ -241,7 +242,7 @@ namespace Juego_UNO
         }
 
         /// <summary>
-        /// Voltea la carta de arriba del mazo para iniciar la pila de descarte.
+        /// Voltea la carta de arriba del mazo para empezar el juego.
         /// Segun las reglas oficiales, si sale un +4 se regresa al mazo y se voltea otra.
         /// </summary>
         private Carta SacarCartaInicial()
@@ -258,18 +259,11 @@ namespace Juego_UNO
         }
 
         /// <summary>
-        /// Cuando se acaba el mazo, se barajan las cartas del descarte (menos la de arriba)
-        /// y pasan a ser el nuevo mazo.
+        /// Mete la carta al mazo en una posicion aleatoria, para que robar siga siendo al azar.
         /// </summary>
-        private void RellenarMazo()
+        private void RegresarAlMazo(Carta carta)
         {
-            if (descarte.Count <= 1)
-                return;
-
-            var cartaArriba = descarte.Last();
-            mazo = descarte.Take(descarte.Count - 1).ToList();
-            Barajar(mazo);
-            descarte = new List<Carta> { cartaArriba };
+            mazo.Insert(aleatorio.Next(mazo.Count + 1), carta);
         }
 
         private void MostrarManos()
@@ -294,7 +288,7 @@ namespace Juego_UNO
 
         private void MostrarDescarte()
         {
-            label1.Text = descarte.Last().ToString();
+            label1.Text = cartaArriba.ToString();
         }
 
         private void ActualizarTitulo()
