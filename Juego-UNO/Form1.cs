@@ -18,6 +18,7 @@ namespace Juego_UNO
 
         private static readonly Random aleatorio = new Random();
 
+        // Ordenados por su posicion en la mesa (partida_jugador.posicion)
         private List<Jugador> jugadores = new List<Jugador>();
         private List<Carta> mazo = new List<Carta>();
         // Carta boca arriba (label1). Al jugarse otra encima, esta regresa al mazo.
@@ -25,10 +26,16 @@ namespace Juego_UNO
         private int idPartida;
         private bool partidaEnCurso;
 
+        // Indice (en jugadores) de quien tiene el turno, y sentido del juego:
+        // 1 = posiciones ascendentes (1, 2, 3, 4), -1 = descendentes (4, 3, 2, 1)
+        private int turno;
+        private int direccion = 1;
+
         // Controles de cada jugador, en orden de posicion:
         // 1 abajo, 2 derecha, 3 arriba, 4 izquierda
         private ComboBox[] combosMano;
         private Label[] etiquetasNombre;
+        private Label[] indicadoresTurno;
         private Button[] botonesJugar;
         private Button[] botonesRobar;
 
@@ -40,6 +47,7 @@ namespace Juego_UNO
             etiquetasNombre = new[] { lblJugador1, lblJugador2, lblJugador3, lblJugador4 };
             botonesJugar = new[] { button1, button4, button7, button6 };
             botonesRobar = new[] { button2, button3, button8, button5 };
+            indicadoresTurno = etiquetasNombre.Select(_ => CrearIndicadorTurno()).ToArray();
 
             // Solo se puede elegir una carta de la lista, no escribir texto.
             // La lista desplegable es mas ancha que el combo para que quepan nombres largos.
@@ -59,9 +67,28 @@ namespace Juego_UNO
 
             label1.Text = "";
             label1.Font = new Font(Font.FontFamily, 12, FontStyle.Bold);
-            HabilitarBotonesJugadores(false);
+            ActualizarTurno();
 
             FormClosing += Ventana_FormClosing;
+        }
+
+        /// <summary>
+        /// Circulo amarillo que se muestra junto al nombre del jugador en turno.
+        /// </summary>
+        private Label CrearIndicadorTurno()
+        {
+            var indicador = new Label
+            {
+                Text = "●",
+                ForeColor = Color.Yellow,
+                BackColor = Color.Transparent,
+                AutoSize = true,
+                Font = new Font(Font.FontFamily, 14, FontStyle.Bold),
+                Visible = false
+            };
+            Controls.Add(indicador);
+            indicador.BringToFront();
+            return indicador;
         }
 
         // Empezar juego
@@ -95,6 +122,12 @@ namespace Juego_UNO
 
                 idPartida = BaseDatos.RegistrarPartida(jugadores, cartaArriba);
                 partidaEnCurso = true;
+
+                // El orden de los turnos sale de la posicion guardada en partida_jugador
+                var posiciones = BaseDatos.ObtenerPosiciones(idPartida);
+                foreach (var jugador in jugadores)
+                    jugador.Posicion = posiciones[jugador.Id];
+                jugadores = jugadores.OrderBy(j => j.Posicion).ToList();
             }
             catch (MySqlException ex)
             {
@@ -102,9 +135,10 @@ namespace Juego_UNO
                 return;
             }
 
+            AplicarCartaInicial();
             MostrarManos();
             MostrarDescarte();
-            HabilitarBotonesJugadores(true);
+            ActualizarTurno();
         }
 
         /// <summary>
@@ -137,43 +171,134 @@ namespace Juego_UNO
             cartaArriba = carta;
             MostrarMano(posicion);
             MostrarDescarte();
-            ActualizarTitulo();
 
             if (jugador.Mano.Count == 0)
                 TerminarConGanador(jugador);
+            else
+                AplicarEfecto(carta);
+
+            ActualizarTurno();
         }
 
         /// <summary>
-        /// El jugador toma la carta de arriba del mazo (que esta barajado, asi que es aleatoria).
+        /// El jugador en turno roba una carta del mazo. Puede robar las veces que quiera;
+        /// su turno solo termina cuando juega una carta.
         /// </summary>
         private void RobarCarta(int posicion)
         {
-            // Solo pasa si todas las cartas estan en las manos de los jugadores
-            if (mazo.Count == 0)
-            {
-                MessageBox.Show("Ya no quedan cartas para robar.", "UNO",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (DarCartas(posicion, 1) == 0)
                 return;
-            }
 
-            var jugador = jugadores[posicion];
-            var carta = mazo[0];
-
-            try
-            {
-                BaseDatos.RegistrarJugada(idPartida, jugador.Id, "robar", carta.Id);
-            }
-            catch (MySqlException ex)
-            {
-                MostrarErrorBaseDatos(ex);
-                return;
-            }
-
-            mazo.RemoveAt(0);
-            jugador.Mano.Add(carta);
-            MostrarMano(posicion);
-            combosMano[posicion].SelectedItem = carta;
+            // Queda seleccionada la carta recien robada
+            var combo = combosMano[posicion];
+            combo.SelectedIndex = combo.Items.Count - 1;
             ActualizarTitulo();
+        }
+
+        /// <summary>
+        /// Pasa el turno segun la carta que se acaba de jugar.
+        /// </summary>
+        private void AplicarEfecto(Carta carta)
+        {
+            switch (carta.Efecto)
+            {
+                case "cambiar_direccion":
+                    direccion = -direccion;
+                    turno = Siguiente(turno);
+                    break;
+
+                case "bloquear":
+                    turno = Siguiente(turno, 2);
+                    break;
+
+                case "+2":
+                case "+4":
+                    // El siguiente roba y pierde su turno
+                    DarCartas(Siguiente(turno), carta.Efecto == "+2" ? 2 : 4);
+                    turno = Siguiente(turno, 2);
+                    break;
+
+                default:
+                    turno = Siguiente(turno);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Define quien empieza segun la carta volteada al inicio (reglas oficiales).
+        /// El que reparte es el ultimo en la mesa; empieza el que sigue de el.
+        /// </summary>
+        private void AplicarCartaInicial()
+        {
+            direccion = 1;
+            turno = 0;
+
+            switch (cartaArriba.Efecto)
+            {
+                case "cambiar_direccion":
+                    // Empieza el que reparte y el juego va en sentido contrario
+                    direccion = -1;
+                    turno = jugadores.Count - 1;
+                    break;
+
+                case "bloquear":
+                    turno = Siguiente(0);
+                    break;
+
+                case "+2":
+                    DarCartas(0, 2);
+                    turno = Siguiente(0);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Indice del jugador que esta 'pasos' lugares despues de 'desde', en el sentido actual.
+        /// </summary>
+        private int Siguiente(int desde, int pasos = 1)
+        {
+            int n = jugadores.Count;
+            return ((desde + direccion * pasos) % n + n) % n;
+        }
+
+        /// <summary>
+        /// Da 'cantidad' cartas del mazo al jugador y las registra en el log.
+        /// Devuelve cuantas se pudieron dar.
+        /// </summary>
+        private int DarCartas(int posicion, int cantidad)
+        {
+            var jugador = jugadores[posicion];
+            int dadas = 0;
+
+            for (int i = 0; i < cantidad; i++)
+            {
+                // Solo pasa si todas las cartas estan en las manos de los jugadores
+                if (mazo.Count == 0)
+                {
+                    MessageBox.Show("Ya no quedan cartas para robar.", "UNO",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+                }
+
+                var carta = mazo[0];
+                try
+                {
+                    BaseDatos.RegistrarJugada(idPartida, jugador.Id, "robar", carta.Id);
+                }
+                catch (MySqlException ex)
+                {
+                    MostrarErrorBaseDatos(ex);
+                    break;
+                }
+
+                mazo.RemoveAt(0);
+                jugador.Mano.Add(carta);
+                dadas++;
+            }
+
+            if (dadas > 0)
+                MostrarMano(posicion);
+            return dadas;
         }
 
         private void TerminarConGanador(Jugador ganador)
@@ -189,7 +314,7 @@ namespace Juego_UNO
             }
 
             partidaEnCurso = false;
-            HabilitarBotonesJugadores(false);
+            ActualizarTurno();
             MessageBox.Show($"¡{ganador.Nombre} ganó la partida!", "UNO",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -273,7 +398,6 @@ namespace Juego_UNO
                 etiquetasNombre[i].Text = jugadores[i].Nombre;
                 MostrarMano(i);
             }
-            ActualizarTitulo();
         }
 
         private void MostrarMano(int posicion)
@@ -291,15 +415,42 @@ namespace Juego_UNO
             label1.Text = cartaArriba.ToString();
         }
 
-        private void ActualizarTitulo()
+        /// <summary>
+        /// Solo el jugador en turno tiene sus botones activos y el circulo amarillo junto a su nombre.
+        /// </summary>
+        private void ActualizarTurno()
         {
-            Text = $"UNO - Partida {idPartida} ({mazo.Count} cartas en el mazo)";
+            for (int i = 0; i < NumJugadores; i++)
+            {
+                bool enTurno = partidaEnCurso && i == turno;
+                botonesJugar[i].Enabled = enTurno;
+                botonesRobar[i].Enabled = enTurno;
+                indicadoresTurno[i].Visible = enTurno;
+
+                if (enTurno)
+                {
+                    // Se acomoda a la derecha del nombre, que cambia de largo
+                    var etiqueta = etiquetasNombre[i];
+                    indicadoresTurno[i].Location = new Point(
+                        etiqueta.Right + 2,
+                        etiqueta.Top + (etiqueta.Height - indicadoresTurno[i].Height) / 2);
+                }
+            }
+
+            ActualizarTitulo();
         }
 
-        private void HabilitarBotonesJugadores(bool habilitar)
+        private void ActualizarTitulo()
         {
-            foreach (var boton in botonesJugar.Concat(botonesRobar))
-                boton.Enabled = habilitar;
+            if (!partidaEnCurso)
+            {
+                Text = idPartida == 0 ? "UNO" : $"UNO - Partida {idPartida} terminada";
+                return;
+            }
+
+            string sentido = direccion == 1 ? "1→2→3→4" : "4→3→2→1";
+            Text = $"UNO - Partida {idPartida} | Turno de {jugadores[turno].Nombre} | " +
+                   $"Sentido {sentido} | {mazo.Count} cartas en el mazo";
         }
 
         private static void MostrarErrorBaseDatos(MySqlException ex)
