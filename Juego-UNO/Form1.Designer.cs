@@ -123,7 +123,6 @@
             this.button1.TabIndex = 7;
             this.button1.Text = "Jugar";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
@@ -211,7 +210,6 @@
             this.button7.TabIndex = 16;
             this.button7.Text = "Jugar";
             this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // button8
             // 
