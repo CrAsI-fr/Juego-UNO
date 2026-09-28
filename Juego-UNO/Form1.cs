@@ -166,15 +166,27 @@ namespace Juego_UNO
                 return;
             }
 
+            // El color de un comodin se pide antes de registrar, para guardarlo en jugada.color_elegido
+            string colorElegido = null;
+            if (esComodin)
+            {
+                colorElegido = PedirColor();
+                if (colorElegido == null)
+                    return;
+            }
+
             try
             {
-                BaseDatos.RegistrarJugada(idPartida, jugador.Id, "tirar", carta.Id);
+                BaseDatos.RegistrarJugada(idPartida, jugador.Id, "tirar", carta.Id, colorElegido);
             }
             catch (MySqlException ex)
             {
                 MostrarErrorBaseDatos(ex);
                 return;
             }
+
+            if (colorElegido != null)
+                carta.Color = colorElegido;
 
             jugador.Mano.Remove(carta);
             RegresarAlMazo(cartaArriba);
@@ -205,6 +217,22 @@ namespace Juego_UNO
         }
 
         /// <summary>
+        /// Muestra la ventana para elegir color. Devuelve null si se cerro sin elegir.
+        /// </summary>
+        private string PedirColor()
+        {
+            using (FormElegirColor ventanaElegirColor = new FormElegirColor())
+            {
+                if (ventanaElegirColor.ShowDialog(this) != DialogResult.OK)
+                    return null;
+
+                string nuevoColor = ventanaElegirColor.getColor();
+                MessageBox.Show("El nuevo color es: " + nuevoColor);
+                return nuevoColor;
+            }
+        }
+
+        /// <summary>
         /// Pasa el turno segun la carta que se acaba de jugar.
         /// </summary>
         private void AplicarEfecto(Carta carta)
@@ -225,32 +253,9 @@ namespace Juego_UNO
                     turno = Siguiente(turno, 2);
                     break;
                 case "+4":
-                    // El siguiente roba y pierde su turno
-                    using (FormElegirColor ventanaElegirColor = new FormElegirColor())
-                    {
-                        DialogResult resultado = ventanaElegirColor.ShowDialog();
-                        if (resultado == DialogResult.OK)
-                        {
-                            string nuevoColor = ventanaElegirColor.getColor();
-                            MessageBox.Show("El nuevo color es: " + nuevoColor);
-                            carta.Color = nuevoColor;
-                        }
-                    }
+                    // El siguiente roba y pierde su turno (el color ya se eligio en JugarCarta)
                     DarCartas(Siguiente(turno), 4);
                     turno = Siguiente(turno, 2);
-                    break;
-                case "cambiar_color":
-                    using(FormElegirColor ventanaElegirColor = new FormElegirColor())
-                    {
-                        DialogResult resultado = ventanaElegirColor.ShowDialog();
-                        if(resultado == DialogResult.OK)
-                        {
-                            string nuevoColor = ventanaElegirColor.getColor();
-                            MessageBox.Show("El nuevo color es: " + nuevoColor);
-                            carta.Color = nuevoColor;
-                        }
-                    }
-                    turno = Siguiente(turno);
                     break;
                 default:
                     turno = Siguiente(turno);
