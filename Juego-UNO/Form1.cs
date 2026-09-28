@@ -33,6 +33,8 @@ namespace Juego_UNO
         // 1 = posiciones ascendentes (1, 2, 3, 4), -1 = descendentes (4, 3, 2, 1)
         private int turno;
         private int direccion = 1;
+        // Si el jugador en turno ya robo al menos una carta; solo entonces puede pasar
+        private bool yaRobo;
 
         // Controles de cada jugador, en orden de posicion:
         // 1 abajo, 2 derecha, 3 arriba, 4 izquierda
@@ -139,7 +141,10 @@ namespace Juego_UNO
                 return;
             }
 
-            AplicarCartaInicial();
+            // La carta inicial siempre es de numero: empieza la posicion 1 en sentido 1→2→3→4
+            direccion = 1;
+            turno = 0;
+            yaRobo = false;
             MostrarManos();
             MostrarDescarte();
             ActualizarTurno();
@@ -169,6 +174,9 @@ namespace Juego_UNO
 
             if (!esComodin && !coincideColor && !coincideNumero && !coincideEfecto)
             {
+                MessageBox.Show($"No puedes jugar {carta} sobre {cartaArriba}.\n" +
+                    $"Debe ser color {colorActual}, el mismo número o símbolo, o un comodín.",
+                    "Jugada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -194,6 +202,7 @@ namespace Juego_UNO
             jugador.Mano.Remove(carta);
             RegresarAlMazo(cartaArriba);
             MostrarMano(posicion);
+            yaRobo = false;
 
             if (jugador.Mano.Count == 0)
                 TerminarConGanador(jugador);
@@ -207,7 +216,7 @@ namespace Juego_UNO
 
         /// <summary>
         /// El jugador en turno roba una carta del mazo. Puede robar las veces que quiera;
-        /// su turno solo termina cuando juega una carta.
+        /// su turno termina cuando juega una carta o cuando pasa.
         /// </summary>
         private void RobarCarta(int posicion)
         {
@@ -217,7 +226,30 @@ namespace Juego_UNO
             // Queda seleccionada la carta recien robada
             var combo = combosMano[posicion];
             combo.SelectedIndex = combo.Items.Count - 1;
-            ActualizarTitulo();
+
+            yaRobo = true;          // ya puede pasar
+            ActualizarTurno();
+        }
+
+        /// <summary>
+        /// El jugador en turno pasa sin tirar. Segun las reglas oficiales, solo se puede
+        /// despues de robar; si el mazo esta vacio tambien se permite, para no atorarse.
+        /// </summary>
+        private void botonPasar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                BaseDatos.RegistrarJugada(idPartida, jugadores[turno].Id, "pasar", null);
+            }
+            catch (MySqlException ex)
+            {
+                MostrarErrorBaseDatos(ex);
+                return;
+            }
+
+            yaRobo = false;
+            turno = Siguiente(turno);
+            ActualizarTurno();
         }
 
         /// <summary>
@@ -263,34 +295,6 @@ namespace Juego_UNO
                     break;
                 default:
                     turno = Siguiente(turno);
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Define quien empieza segun la carta volteada al inicio (reglas oficiales).
-        /// El que reparte es el ultimo en la mesa; empieza el que sigue de el.
-        /// </summary>
-        private void AplicarCartaInicial()
-        {
-            direccion = 1;
-            turno = 0;
-
-            switch (cartaArriba.Efecto)
-            {
-                case "cambiar_direccion":
-                    // Empieza el que reparte y el juego va en sentido contrario
-                    direccion = -1;
-                    turno = jugadores.Count - 1;
-                    break;
-
-                case "bloquear":
-                    turno = Siguiente(0);
-                    break;
-
-                case "+2":
-                    DarCartas(0, 2);
-                    turno = Siguiente(0);
                     break;
             }
         }
@@ -411,12 +415,14 @@ namespace Juego_UNO
 
         /// <summary>
         /// Voltea la carta de arriba del mazo para empezar el juego.
-        /// Segun las reglas oficiales, si sale un +4 se regresa al mazo y se voltea otra.
+        /// Solo puede ser una carta ordinaria (numero): si sale un comodin o una especial,
+        /// se regresa al mazo y se voltea otra. Siempre quedan ordinarias en el mazo
+        /// despues de repartir (hay 36 ordinarias y solo 24 especiales).
         /// </summary>
         private Carta SacarCartaInicial()
         {
             var carta = mazo[0];
-            while (carta.Efecto == "+4")
+            while (carta.Tipo != "ordinaria")
             {
                 mazo.RemoveAt(0);
                 mazo.Insert(aleatorio.Next(1, mazo.Count + 1), carta);
@@ -453,13 +459,30 @@ namespace Juego_UNO
                 combo.SelectedIndex = 0;
         }
 
+        /// <summary>
+        /// Muestra la carta de arriba en label1, con el fondo del color que esta en juego.
+        /// Si es un comodin, tambien se escribe el color elegido.
+        /// </summary>
         private void MostrarDescarte()
         {
             label1.Text = cartaArriba.ToString();
+            if (cartaArriba.Color == null && colorActual != null)
+                label1.Text += " → " + colorActual;
+
+            // Se pinta el fondo y no el texto porque la ventana es roja
+            switch (colorActual)
+            {
+                case "rojo": label1.BackColor = Color.DarkRed; label1.ForeColor = Color.White; break;
+                case "azul": label1.BackColor = Color.RoyalBlue; label1.ForeColor = Color.White; break;
+                case "verde": label1.BackColor = Color.ForestGreen; label1.ForeColor = Color.White; break;
+                case "amarillo": label1.BackColor = Color.Gold; label1.ForeColor = Color.Black; break;
+                default: label1.BackColor = Color.Transparent; label1.ForeColor = Color.Black; break;
+            }
         }
 
         /// <summary>
         /// Solo el jugador en turno tiene sus botones activos y el circulo amarillo junto a su nombre.
+        /// "Pasar" solo se activa despues de robar (o si el mazo esta vacio).
         /// </summary>
         private void ActualizarTurno()
         {
@@ -479,6 +502,8 @@ namespace Juego_UNO
                         etiqueta.Top + (etiqueta.Height - indicadoresTurno[i].Height) / 2);
                 }
             }
+
+            botonPasar.Enabled = partidaEnCurso && (yaRobo || mazo.Count == 0);
 
             ActualizarTitulo();
         }
