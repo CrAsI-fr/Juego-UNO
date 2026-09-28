@@ -165,18 +165,24 @@ namespace Juego_UNO
                 MostrarErrorBaseDatos(ex);
                 return;
             }
-
+            bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
+            bool coincideColor = (carta.Color != null && carta.Color.Equals(cartaArriba.Color));
+            bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
+            
+            if (!esComodin && !coincideColor && !coincideNumero)
+            {
+                return;
+            }
             jugador.Mano.Remove(carta);
             RegresarAlMazo(cartaArriba);
-            cartaArriba = carta;
             MostrarMano(posicion);
-            MostrarDescarte();
 
             if (jugador.Mano.Count == 0)
                 TerminarConGanador(jugador);
             else
                 AplicarEfecto(carta);
-
+            cartaArriba = carta;
+            MostrarDescarte();
             ActualizarTurno();
         }
 
@@ -217,10 +223,32 @@ namespace Juego_UNO
                     break;
                 case "+4":
                     // El siguiente roba y pierde su turno
+                    using (FormElegirColor ventanaElegirColor = new FormElegirColor())
+                    {
+                        DialogResult resultado = ventanaElegirColor.ShowDialog();
+                        if (resultado == DialogResult.OK)
+                        {
+                            string nuevoColor = ventanaElegirColor.getColor();
+                            MessageBox.Show("El nuevo color es: " + nuevoColor);
+                            carta.Color = nuevoColor;
+                        }
+                    }
                     DarCartas(Siguiente(turno), 4);
                     turno = Siguiente(turno, 2);
                     break;
-
+                case "cambiar_color":
+                    using(FormElegirColor ventanaElegirColor = new FormElegirColor())
+                    {
+                        DialogResult resultado = ventanaElegirColor.ShowDialog();
+                        if(resultado == DialogResult.OK)
+                        {
+                            string nuevoColor = ventanaElegirColor.getColor();
+                            MessageBox.Show("El nuevo color es: " + nuevoColor);
+                            carta.Color = nuevoColor;
+                        }
+                    }
+                    turno = Siguiente(turno);
+                    break;
                 default:
                     turno = Siguiente(turno);
                     break;
