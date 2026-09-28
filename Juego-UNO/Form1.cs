@@ -164,8 +164,10 @@ namespace Juego_UNO
             bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
             bool coincideColor = (carta.Color != null && carta.Color.Equals(colorActual));
             bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
+            // Mismo simbolo aunque sea de otro color: +2 sobre +2, bloqueo sobre bloqueo, reversa sobre reversa
+            bool coincideEfecto = (carta.Efecto != null && carta.Efecto.Equals(cartaArriba.Efecto));
 
-            if (!esComodin && !coincideColor && !coincideNumero)
+            if (!esComodin && !coincideColor && !coincideNumero && !coincideEfecto)
             {
                 return;
             }
