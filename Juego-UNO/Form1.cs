@@ -156,6 +156,16 @@ namespace Juego_UNO
                 return;
             }
 
+            // Se valida antes de registrar, para que el log solo tenga jugadas que si ocurrieron
+            bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
+            bool coincideColor = (carta.Color != null && carta.Color.Equals(cartaArriba.Color));
+            bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
+
+            if (!esComodin && !coincideColor && !coincideNumero)
+            {
+                return;
+            }
+
             try
             {
                 BaseDatos.RegistrarJugada(idPartida, jugador.Id, "tirar", carta.Id);
@@ -165,14 +175,7 @@ namespace Juego_UNO
                 MostrarErrorBaseDatos(ex);
                 return;
             }
-            bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
-            bool coincideColor = (carta.Color != null && carta.Color.Equals(cartaArriba.Color));
-            bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
-            
-            if (!esComodin && !coincideColor && !coincideNumero)
-            {
-                return;
-            }
+
             jugador.Mano.Remove(carta);
             RegresarAlMazo(cartaArriba);
             MostrarMano(posicion);
