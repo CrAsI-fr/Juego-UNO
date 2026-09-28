@@ -51,6 +51,7 @@
             this.lblJugador3 = new System.Windows.Forms.Label();
             this.lblJugador4 = new System.Windows.Forms.Label();
             this.button9 = new System.Windows.Forms.Button();
+            this.botonPasar = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -284,12 +285,23 @@
             this.label1.TabIndex = 22;
             this.label1.Text = "label1";
             // 
+            // botonPasar
+            // 
+            this.botonPasar.Location = new System.Drawing.Point(630, 331);
+            this.botonPasar.Name = "botonPasar";
+            this.botonPasar.Size = new System.Drawing.Size(100, 35);
+            this.botonPasar.TabIndex = 23;
+            this.botonPasar.Text = "Pasar";
+            this.botonPasar.UseVisualStyleBackColor = true;
+            this.botonPasar.Click += new System.EventHandler(this.botonPasar_Click);
+            // 
             // Ventana
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
             this.ClientSize = new System.Drawing.Size(1074, 775);
+            this.Controls.Add(this.botonPasar);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button9);
             this.Controls.Add(this.lblJugador4);
@@ -352,6 +364,7 @@
         private System.Windows.Forms.Label lblJugador4;
         private System.Windows.Forms.Button button9;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button botonPasar;
     }
 }
 

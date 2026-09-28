@@ -23,6 +23,9 @@ namespace Juego_UNO
         private List<Carta> mazo = new List<Carta>();
         // Carta boca arriba (label1). Al jugarse otra encima, esta regresa al mazo.
         private Carta cartaArriba;
+        // Color que vale ahora: el de cartaArriba, o el elegido si es un comodin.
+        // Se guarda aparte para no modificar la carta (los comodines no tienen color propio).
+        private string colorActual;
         private int idPartida;
         private bool partidaEnCurso;
 
@@ -119,6 +122,7 @@ namespace Juego_UNO
                 Repartir();
 
                 cartaArriba = SacarCartaInicial();
+                colorActual = cartaArriba.Color;
 
                 idPartida = BaseDatos.RegistrarPartida(jugadores, cartaArriba);
                 partidaEnCurso = true;
@@ -135,7 +139,9 @@ namespace Juego_UNO
                 return;
             }
 
-            AplicarCartaInicial();
+            // La carta inicial siempre es de numero: empieza la posicion 1 en sentido 1→2→3→4
+            direccion = 1;
+            turno = 0;
             MostrarManos();
             MostrarDescarte();
             ActualizarTurno();
@@ -156,23 +162,40 @@ namespace Juego_UNO
                 return;
             }
 
+            // Se valida antes de registrar, para que el log solo tenga jugadas que si ocurrieron
+            bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
+            bool coincideColor = (carta.Color != null && carta.Color.Equals(colorActual));
+            bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
+            // Mismo simbolo aunque sea de otro color: +2 sobre +2, bloqueo sobre bloqueo, reversa sobre reversa
+            bool coincideEfecto = (carta.Efecto != null && carta.Efecto.Equals(cartaArriba.Efecto));
+
+            if (!esComodin && !coincideColor && !coincideNumero && !coincideEfecto)
+            {
+                MessageBox.Show($"No puedes jugar {carta} sobre {cartaArriba}.\n" +
+                    $"Debe ser color {colorActual}, el mismo número o símbolo, o un comodín.",
+                    "Jugada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // El color de un comodin se pide antes de registrar, para guardarlo en jugada.color_elegido
+            string colorElegido = null;
+            if (esComodin)
+            {
+                colorElegido = PedirColor();
+                if (colorElegido == null)
+                    return;
+            }
+
             try
             {
-                BaseDatos.RegistrarJugada(idPartida, jugador.Id, "tirar", carta.Id);
+                BaseDatos.RegistrarJugada(idPartida, jugador.Id, "tirar", carta.Id, colorElegido);
             }
             catch (MySqlException ex)
             {
                 MostrarErrorBaseDatos(ex);
                 return;
             }
-            bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
-            bool coincideColor = (carta.Color != null && carta.Color.Equals(cartaArriba.Color));
-            bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
-            
-            if (!esComodin && !coincideColor && !coincideNumero)
-            {
-                return;
-            }
+
             jugador.Mano.Remove(carta);
             RegresarAlMazo(cartaArriba);
             MostrarMano(posicion);
@@ -182,13 +205,14 @@ namespace Juego_UNO
             else
                 AplicarEfecto(carta);
             cartaArriba = carta;
+            colorActual = colorElegido ?? carta.Color;
             MostrarDescarte();
             ActualizarTurno();
         }
 
         /// <summary>
         /// El jugador en turno roba una carta del mazo. Puede robar las veces que quiera;
-        /// su turno solo termina cuando juega una carta.
+        /// su turno termina cuando juega una carta o cuando pasa.
         /// </summary>
         private void RobarCarta(int posicion)
         {
@@ -198,7 +222,44 @@ namespace Juego_UNO
             // Queda seleccionada la carta recien robada
             var combo = combosMano[posicion];
             combo.SelectedIndex = combo.Items.Count - 1;
-            ActualizarTitulo();
+
+            ActualizarTurno();      // si el mazo se vacio, se activa "Pasar"
+        }
+
+        /// <summary>
+        /// El jugador en turno pasa sin tirar. Solo se permite cuando el mazo esta vacio,
+        /// para que un jugador sin cartas validas no se quede atorado.
+        /// </summary>
+        private void botonPasar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                BaseDatos.RegistrarJugada(idPartida, jugadores[turno].Id, "pasar", null);
+            }
+            catch (MySqlException ex)
+            {
+                MostrarErrorBaseDatos(ex);
+                return;
+            }
+
+            turno = Siguiente(turno);
+            ActualizarTurno();
+        }
+
+        /// <summary>
+        /// Muestra la ventana para elegir color. Devuelve null si se cerro sin elegir.
+        /// </summary>
+        private string PedirColor()
+        {
+            using (FormElegirColor ventanaElegirColor = new FormElegirColor())
+            {
+                if (ventanaElegirColor.ShowDialog(this) != DialogResult.OK)
+                    return null;
+
+                string nuevoColor = ventanaElegirColor.getColor();
+                MessageBox.Show("El nuevo color es: " + nuevoColor);
+                return nuevoColor;
+            }
         }
 
         /// <summary>
@@ -222,63 +283,12 @@ namespace Juego_UNO
                     turno = Siguiente(turno, 2);
                     break;
                 case "+4":
-                    // El siguiente roba y pierde su turno
-                    using (FormElegirColor ventanaElegirColor = new FormElegirColor())
-                    {
-                        DialogResult resultado = ventanaElegirColor.ShowDialog();
-                        if (resultado == DialogResult.OK)
-                        {
-                            string nuevoColor = ventanaElegirColor.getColor();
-                            MessageBox.Show("El nuevo color es: " + nuevoColor);
-                            carta.Color = nuevoColor;
-                        }
-                    }
+                    // El siguiente roba y pierde su turno (el color ya se eligio en JugarCarta)
                     DarCartas(Siguiente(turno), 4);
                     turno = Siguiente(turno, 2);
                     break;
-                case "cambiar_color":
-                    using(FormElegirColor ventanaElegirColor = new FormElegirColor())
-                    {
-                        DialogResult resultado = ventanaElegirColor.ShowDialog();
-                        if(resultado == DialogResult.OK)
-                        {
-                            string nuevoColor = ventanaElegirColor.getColor();
-                            MessageBox.Show("El nuevo color es: " + nuevoColor);
-                            carta.Color = nuevoColor;
-                        }
-                    }
-                    turno = Siguiente(turno);
-                    break;
                 default:
                     turno = Siguiente(turno);
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Define quien empieza segun la carta volteada al inicio (reglas oficiales).
-        /// El que reparte es el ultimo en la mesa; empieza el que sigue de el.
-        /// </summary>
-        private void AplicarCartaInicial()
-        {
-            direccion = 1;
-            turno = 0;
-
-            switch (cartaArriba.Efecto)
-            {
-                case "cambiar_direccion":
-                    // Empieza el que reparte y el juego va en sentido contrario
-                    direccion = -1;
-                    turno = jugadores.Count - 1;
-                    break;
-
-                case "bloquear":
-                    turno = Siguiente(0);
-                    break;
-
-                case "+2":
-                    DarCartas(0, 2);
-                    turno = Siguiente(0);
                     break;
             }
         }
@@ -399,12 +409,14 @@ namespace Juego_UNO
 
         /// <summary>
         /// Voltea la carta de arriba del mazo para empezar el juego.
-        /// Segun las reglas oficiales, si sale un +4 se regresa al mazo y se voltea otra.
+        /// Solo puede ser una carta ordinaria (numero): si sale un comodin o una especial,
+        /// se regresa al mazo y se voltea otra. Siempre quedan ordinarias en el mazo
+        /// despues de repartir (hay 36 ordinarias y solo 24 especiales).
         /// </summary>
         private Carta SacarCartaInicial()
         {
             var carta = mazo[0];
-            while (carta.Efecto == "+4")
+            while (carta.Tipo != "ordinaria")
             {
                 mazo.RemoveAt(0);
                 mazo.Insert(aleatorio.Next(1, mazo.Count + 1), carta);
@@ -441,13 +453,30 @@ namespace Juego_UNO
                 combo.SelectedIndex = 0;
         }
 
+        /// <summary>
+        /// Muestra la carta de arriba en label1, con el fondo del color que esta en juego.
+        /// Si es un comodin, tambien se escribe el color elegido.
+        /// </summary>
         private void MostrarDescarte()
         {
             label1.Text = cartaArriba.ToString();
+            if (cartaArriba.Color == null && colorActual != null)
+                label1.Text += " → " + colorActual;
+
+            // Se pinta el fondo y no el texto porque la ventana es roja
+            switch (colorActual)
+            {
+                case "rojo": label1.BackColor = Color.DarkRed; label1.ForeColor = Color.White; break;
+                case "azul": label1.BackColor = Color.RoyalBlue; label1.ForeColor = Color.White; break;
+                case "verde": label1.BackColor = Color.ForestGreen; label1.ForeColor = Color.White; break;
+                case "amarillo": label1.BackColor = Color.Gold; label1.ForeColor = Color.Black; break;
+                default: label1.BackColor = Color.Transparent; label1.ForeColor = Color.Black; break;
+            }
         }
 
         /// <summary>
         /// Solo el jugador en turno tiene sus botones activos y el circulo amarillo junto a su nombre.
+        /// "Pasar" solo se activa cuando ya no quedan cartas en el mazo.
         /// </summary>
         private void ActualizarTurno()
         {
@@ -467,6 +496,8 @@ namespace Juego_UNO
                         etiqueta.Top + (etiqueta.Height - indicadoresTurno[i].Height) / 2);
                 }
             }
+
+            botonPasar.Enabled = partidaEnCurso && mazo.Count == 0;
 
             ActualizarTitulo();
         }

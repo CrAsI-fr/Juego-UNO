@@ -9,7 +9,7 @@ namespace Juego_UNO
     public static class BaseDatos
     {
         // Cambiar usuario y contraseña segun la instalacion de MySQL de cada quien
-        private const string CadenaConexion = "Server=localhost;Port=3306;Database=unobd;User ID=root;Password=Darkneznight1987*;";
+        private const string CadenaConexion = "Server=localhost;Port=3306;Database=unobd;User ID=root;Password=TUCLAVE;";
 
         private static MySqlConnection AbrirConexion()
         {
@@ -166,19 +166,22 @@ namespace Juego_UNO
         /// <summary>
         /// Guarda un movimiento en el log (tabla jugada) con el siguiente numero de jugada.
         /// tipoAccion debe ser uno de los valores del enum de jugada.tipo_accion.
+        /// colorElegido solo se usa al tirar un comodin (cambiar_color o +4).
         /// </summary>
-        public static void RegistrarJugada(int idPartida, int idJugador, string tipoAccion, int? idCarta)
+        public static void RegistrarJugada(int idPartida, int idJugador, string tipoAccion, int? idCarta,
+            string colorElegido = null)
         {
             using (var conexion = AbrirConexion())
             using (var comando = new MySqlCommand(
-                "insert into jugada (id_partida, num_jugada, id_jugador, tipo_accion, id_carta) " +
-                "select @partida, coalesce(max(num_jugada), 0) + 1, @jugador, @accion, @carta " +
+                "insert into jugada (id_partida, num_jugada, id_jugador, tipo_accion, id_carta, color_elegido) " +
+                "select @partida, coalesce(max(num_jugada), 0) + 1, @jugador, @accion, @carta, @color " +
                 "from jugada where id_partida = @partida", conexion))
             {
                 comando.Parameters.AddWithValue("@partida", idPartida);
                 comando.Parameters.AddWithValue("@jugador", idJugador);
                 comando.Parameters.AddWithValue("@accion", tipoAccion);
                 comando.Parameters.AddWithValue("@carta", (object)idCarta ?? System.DBNull.Value);
+                comando.Parameters.AddWithValue("@color", (object)colorElegido ?? System.DBNull.Value);
                 comando.ExecuteNonQuery();
             }
         }
