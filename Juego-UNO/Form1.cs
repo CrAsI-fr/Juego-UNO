@@ -165,7 +165,13 @@ namespace Juego_UNO
                 MostrarErrorBaseDatos(ex);
                 return;
             }
+            if (carta.Efecto != null && carta.Efecto.Equals("cambiar_color"))
+            {
 
+            }else if (!cartaArriba.Color.Equals(carta.Color))
+            {
+                return;
+            }
             jugador.Mano.Remove(carta);
             RegresarAlMazo(cartaArriba);
             cartaArriba = carta;
