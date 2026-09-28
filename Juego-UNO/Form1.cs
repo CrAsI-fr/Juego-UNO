@@ -23,6 +23,9 @@ namespace Juego_UNO
         private List<Carta> mazo = new List<Carta>();
         // Carta boca arriba (label1). Al jugarse otra encima, esta regresa al mazo.
         private Carta cartaArriba;
+        // Color que vale ahora: el de cartaArriba, o el elegido si es un comodin.
+        // Se guarda aparte para no modificar la carta (los comodines no tienen color propio).
+        private string colorActual;
         private int idPartida;
         private bool partidaEnCurso;
 
@@ -119,6 +122,7 @@ namespace Juego_UNO
                 Repartir();
 
                 cartaArriba = SacarCartaInicial();
+                colorActual = cartaArriba.Color;
 
                 idPartida = BaseDatos.RegistrarPartida(jugadores, cartaArriba);
                 partidaEnCurso = true;
@@ -158,7 +162,7 @@ namespace Juego_UNO
 
             // Se valida antes de registrar, para que el log solo tenga jugadas que si ocurrieron
             bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
-            bool coincideColor = (carta.Color != null && carta.Color.Equals(cartaArriba.Color));
+            bool coincideColor = (carta.Color != null && carta.Color.Equals(colorActual));
             bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
 
             if (!esComodin && !coincideColor && !coincideNumero)
@@ -185,9 +189,6 @@ namespace Juego_UNO
                 return;
             }
 
-            if (colorElegido != null)
-                carta.Color = colorElegido;
-
             jugador.Mano.Remove(carta);
             RegresarAlMazo(cartaArriba);
             MostrarMano(posicion);
@@ -197,6 +198,7 @@ namespace Juego_UNO
             else
                 AplicarEfecto(carta);
             cartaArriba = carta;
+            colorActual = colorElegido ?? carta.Color;
             MostrarDescarte();
             ActualizarTurno();
         }
