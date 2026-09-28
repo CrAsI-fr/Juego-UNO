@@ -33,8 +33,6 @@ namespace Juego_UNO
         // 1 = posiciones ascendentes (1, 2, 3, 4), -1 = descendentes (4, 3, 2, 1)
         private int turno;
         private int direccion = 1;
-        // Si el jugador en turno ya robo al menos una carta; solo entonces puede pasar
-        private bool yaRobo;
 
         // Controles de cada jugador, en orden de posicion:
         // 1 abajo, 2 derecha, 3 arriba, 4 izquierda
@@ -144,7 +142,6 @@ namespace Juego_UNO
             // La carta inicial siempre es de numero: empieza la posicion 1 en sentido 1→2→3→4
             direccion = 1;
             turno = 0;
-            yaRobo = false;
             MostrarManos();
             MostrarDescarte();
             ActualizarTurno();
@@ -202,7 +199,6 @@ namespace Juego_UNO
             jugador.Mano.Remove(carta);
             RegresarAlMazo(cartaArriba);
             MostrarMano(posicion);
-            yaRobo = false;
 
             if (jugador.Mano.Count == 0)
                 TerminarConGanador(jugador);
@@ -227,13 +223,12 @@ namespace Juego_UNO
             var combo = combosMano[posicion];
             combo.SelectedIndex = combo.Items.Count - 1;
 
-            yaRobo = true;          // ya puede pasar
-            ActualizarTurno();
+            ActualizarTurno();      // si el mazo se vacio, se activa "Pasar"
         }
 
         /// <summary>
-        /// El jugador en turno pasa sin tirar. Segun las reglas oficiales, solo se puede
-        /// despues de robar; si el mazo esta vacio tambien se permite, para no atorarse.
+        /// El jugador en turno pasa sin tirar. Solo se permite cuando el mazo esta vacio,
+        /// para que un jugador sin cartas validas no se quede atorado.
         /// </summary>
         private void botonPasar_Click(object sender, EventArgs e)
         {
@@ -247,7 +242,6 @@ namespace Juego_UNO
                 return;
             }
 
-            yaRobo = false;
             turno = Siguiente(turno);
             ActualizarTurno();
         }
@@ -482,7 +476,7 @@ namespace Juego_UNO
 
         /// <summary>
         /// Solo el jugador en turno tiene sus botones activos y el circulo amarillo junto a su nombre.
-        /// "Pasar" solo se activa despues de robar (o si el mazo esta vacio).
+        /// "Pasar" solo se activa cuando ya no quedan cartas en el mazo.
         /// </summary>
         private void ActualizarTurno()
         {
@@ -503,7 +497,7 @@ namespace Juego_UNO
                 }
             }
 
-            botonPasar.Enabled = partidaEnCurso && (yaRobo || mazo.Count == 0);
+            botonPasar.Enabled = partidaEnCurso && mazo.Count == 0;
 
             ActualizarTitulo();
         }
