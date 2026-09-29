@@ -9,7 +9,7 @@ namespace Juego_UNO
     public static class BaseDatos
     {
         // Cambiar usuario y contraseña segun la instalacion de MySQL de cada quien
-        private const string CadenaConexion = "Server=localhost;Port=3306;Database=unobd;User ID=root;Password=TUCLAVE;";
+        private const string CadenaConexion = "Server=localhost;Port=3306;Database=unobd;User ID=root;Password=Darkneznight1987*;";
 
         private static MySqlConnection AbrirConexion()
         {
