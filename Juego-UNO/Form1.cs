@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Juego_UNO
 {
@@ -41,6 +42,9 @@ namespace Juego_UNO
         private Label[] indicadoresTurno;
         private Button[] botonesJugar;
         private Button[] botonesRobar;
+        private PictureBox[] picturesMano;
+        private PictureBox pictureBoxDescarte;
+
 
         public Ventana()
         {
@@ -51,6 +55,15 @@ namespace Juego_UNO
             botonesJugar = new[] { button1, button4, button7, button6 };
             botonesRobar = new[] { button2, button3, button8, button5 };
             indicadoresTurno = etiquetasNombre.Select(_ => CrearIndicadorTurno()).ToArray();
+
+            picturesMano = new[] { pictureBox1, pictureBox2, pictureBox5, pictureBox3 };
+            pictureBoxDescarte = pictureBox4;
+
+            for (int i = 0; i < NumJugadores; i++)
+            {
+                int posicion = i;
+                combosMano[i].SelectedIndexChanged += (s, e) => MostrarCartaSeleccionada(posicion);
+            }
 
             // Solo se puede elegir una carta de la lista, no escribir texto.
             // La lista desplegable es mas ancha que el combo para que quepan nombres largos.
@@ -463,7 +476,6 @@ namespace Juego_UNO
             if (cartaArriba.Color == null && colorActual != null)
                 label1.Text += " → " + colorActual;
 
-            // Se pinta el fondo y no el texto porque la ventana es roja
             switch (colorActual)
             {
                 case "rojo": label1.BackColor = Color.DarkRed; label1.ForeColor = Color.White; break;
@@ -472,6 +484,7 @@ namespace Juego_UNO
                 case "amarillo": label1.BackColor = Color.Gold; label1.ForeColor = Color.Black; break;
                 default: label1.BackColor = Color.Transparent; label1.ForeColor = Color.Black; break;
             }
+            MostrarCartaEnPictureBox(pictureBoxDescarte, cartaArriba, colorActual);
         }
 
         /// <summary>
@@ -525,5 +538,44 @@ namespace Juego_UNO
         {
 
         }
+
+        private void MostrarCartaSeleccionada(int posicion)
+        {
+            if (combosMano[posicion].SelectedItem is Carta carta)
+                MostrarCartaEnPictureBox(picturesMano[posicion], carta);
+            else
+                picturesMano[posicion].Image = null;
+        }
+
+        private static string NombreArchivo(Carta carta, string colorMostrar = null)
+        {
+            if (carta.Tipo == "ordinaria")
+                return $"{carta.Color}_{carta.Numero}.png";
+
+            string color = carta.Color ?? colorMostrar;
+
+            switch (carta.Efecto)
+            {
+                case "cambiar_color": return "comodin_color.png";
+                case "+4": return "comodin_mas4.png";
+                case "bloquear": return $"{color}_bloqueo.png";
+                case "cambiar_direccion": return $"{color}_reversa.png";
+                case "+2": return $"{color}_mas2.png";
+                default: return "comodin_color.png";
+            }
+        }
+
+        private static Image ObtenerImagenCarta(Carta carta, string colorMostrar = null)
+        {
+            string ruta = Path.Combine(Application.StartupPath, "Cartas", NombreArchivo(carta, colorMostrar));
+            return File.Exists(ruta) ? Image.FromFile(ruta) : null;
+        }
+        private static void MostrarCartaEnPictureBox(PictureBox pb, Carta carta, string colorMostrar = null)
+        {
+            pb.Image?.Dispose();
+            pb.Image = ObtenerImagenCarta(carta, colorMostrar);
+            pb.SizeMode = PictureBoxSizeMode.Zoom;
+        }
+
     }
 }
