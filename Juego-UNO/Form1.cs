@@ -1,5 +1,4 @@
-﻿using MySqlConnector;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -146,7 +145,7 @@ namespace Juego_UNO
                     jugador.Posicion = posiciones[jugador.Id];
                 jugadores = jugadores.OrderBy(j => j.Posicion).ToList();
             }
-            catch (MySqlException ex)
+            catch (ErrorBaseDatos ex)
             {
                 MostrarErrorBaseDatos(ex);
                 return;
@@ -203,7 +202,7 @@ namespace Juego_UNO
             {
                 BaseDatos.RegistrarJugada(idPartida, jugador.Id, "tirar", carta.Id, colorElegido);
             }
-            catch (MySqlException ex)
+            catch (ErrorBaseDatos ex)
             {
                 MostrarErrorBaseDatos(ex);
                 return;
@@ -249,7 +248,7 @@ namespace Juego_UNO
             {
                 BaseDatos.RegistrarJugada(idPartida, jugadores[turno].Id, "pasar", null);
             }
-            catch (MySqlException ex)
+            catch (ErrorBaseDatos ex)
             {
                 MostrarErrorBaseDatos(ex);
                 return;
@@ -339,7 +338,7 @@ namespace Juego_UNO
                 {
                     BaseDatos.RegistrarJugada(idPartida, jugador.Id, "robar", carta.Id);
                 }
-                catch (MySqlException ex)
+                catch (ErrorBaseDatos ex)
                 {
                     MostrarErrorBaseDatos(ex);
                     break;
@@ -361,7 +360,7 @@ namespace Juego_UNO
             {
                 BaseDatos.TerminarPartida(idPartida, ganador.Id);
             }
-            catch (MySqlException ex)
+            catch (ErrorBaseDatos ex)
             {
                 MostrarErrorBaseDatos(ex);
                 return;
@@ -383,7 +382,7 @@ namespace Juego_UNO
             {
                 BaseDatos.TerminarPartida(idPartida, null);
             }
-            catch (MySqlException ex)
+            catch (ErrorBaseDatos ex)
             {
                 // No se impide cerrar; solo se avisa
                 MostrarErrorBaseDatos(ex);
@@ -528,7 +527,7 @@ namespace Juego_UNO
                    $"Sentido {sentido} | {mazo.Count} cartas en el mazo";
         }
 
-        private static void MostrarErrorBaseDatos(MySqlException ex)
+        private static void MostrarErrorBaseDatos(ErrorBaseDatos ex)
         {
             MessageBox.Show("Error con la base de datos:\n" + ex.Message,
                 "UNO", MessageBoxButtons.OK, MessageBoxIcon.Error);
