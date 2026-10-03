@@ -39,6 +39,7 @@ namespace Juego_UNO
         private Label[] etiquetasNombre;
         private Label[] indicadoresTurno;
         private PictureBox pictureBoxDescarte;
+        private FlowLayoutPanel[] manosJugadores;
 
         // TODO (Parte 3): contenedores donde se mostraran las cartas de cada jugador
         // como imagenes individuales, con doble clic para jugar.
@@ -52,6 +53,7 @@ namespace Juego_UNO
             indicadoresTurno = etiquetasNombre.Select(_ => CrearIndicadorTurno()).ToArray();
 
             pictureBoxDescarte = pictureBox4;
+            manosJugadores = new[] { flowMano1, flowMano2, flowMano3, flowMano4 };
 
             label1.Text = "";
             label1.Font = new Font(Font.FontFamily, 12, FontStyle.Bold);
@@ -133,23 +135,13 @@ namespace Juego_UNO
             ActualizarTurno();
         }
 
-        /* ============================================================
-         * PENDIENTE (Parte 3): reemplazar JugarCarta y RobarCarta por la
-         * logica de doble clic sobre las cartas mostradas en pantalla,
-         * una vez que existan los FlowLayoutPanel de cada jugador.
-         * Se dejan comentadas para no perder la logica de validacion.
-         * ============================================================
-
-        private void JugarCarta(int posicion)
+        private void JugarCarta(int posicion, Carta carta)
         {
             var jugador = jugadores[posicion];
-            var carta = combosMano[posicion].SelectedItem as Carta;
-            if (carta == null)
-            {
-                MessageBox.Show($"{jugador.Nombre}, selecciona una carta para jugar.", "UNO",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            // Solo puede jugar quien tiene el turno
+            if (posicion != turno || !partidaEnCurso)
                 return;
-            }
 
             bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
             bool coincideColor = (carta.Color != null && carta.Color.Equals(colorActual));
@@ -196,6 +188,9 @@ namespace Juego_UNO
             ActualizarTurno();
         }
 
+        /* ============================================================
+        * PENDIENTE: RobarCarta.
+        * ============================================================
         private void RobarCarta(int posicion)
         {
             if (DarCartas(posicion, 1) == 0)
@@ -430,14 +425,28 @@ namespace Juego_UNO
             }
         }
 
-        /// <summary>
-        /// PENDIENTE (Parte 3): hoy no hace nada visual, porque los combo box ya no existen.
-        /// Aqui se va a mostrar la mano del jugador como imagenes dentro de su FlowLayoutPanel.
-        /// </summary>
+        /// Dibuja todas las cartas de la mano del jugador como imagenes dentro de su
+        /// FlowLayoutPanel. Doble clic en una carta para jugarla.
         private void MostrarMano(int posicion)
         {
-            // TODO Parte 3: recorrer jugadores[posicion].Mano y agregar un PictureBox
-            // por carta dentro de manosJugadores[posicion], con doble clic para jugarla.
+            var contenedor = manosJugadores[posicion];
+            contenedor.Controls.Clear();
+
+            foreach (var carta in jugadores[posicion].Mano)
+            {
+                var pic = new PictureBox
+                {
+                    Image = ObtenerImagenCarta(carta, colorActual),
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Width = 80,
+                    Height = 120,
+                    Margin = new Padding(3),
+                    Cursor = Cursors.Hand,
+                    Tag = carta // guarda la carta para saber cual se jugo al hacer doble clic
+                };
+                pic.DoubleClick += (s, e) => JugarCarta(posicion, carta);
+                contenedor.Controls.Add(pic);
+            }
         }
 
         /// <summary>
@@ -459,6 +468,9 @@ namespace Juego_UNO
                 default: label1.BackColor = Color.Transparent; label1.ForeColor = Color.Black; break;
             }
             MostrarCartaEnPictureBox(pictureBoxDescarte, cartaArriba, colorActual);
+            pictureBox6.Image?.Dispose();
+            pictureBox6.Image = Image.FromFile(Path.Combine(Application.StartupPath, "Cartas", "comodin_mas4.png"));
+            pictureBox6.SizeMode = PictureBoxSizeMode.Zoom;
         }
 
         /// <summary>

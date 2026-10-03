@@ -49,7 +49,8 @@
             // 
             // pictureBox4
             // 
-            this.pictureBox4.Location = new System.Drawing.Point(661, 239);
+            this.pictureBox4.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox4.Location = new System.Drawing.Point(714, 296);
             this.pictureBox4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pictureBox4.Name = "pictureBox4";
             this.pictureBox4.Size = new System.Drawing.Size(143, 139);
@@ -62,7 +63,7 @@
             this.lblJugador1.AutoSize = true;
             this.lblJugador1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblJugador1.ForeColor = System.Drawing.Color.White;
-            this.lblJugador1.Location = new System.Drawing.Point(810, 621);
+            this.lblJugador1.Location = new System.Drawing.Point(609, 516);
             this.lblJugador1.Name = "lblJugador1";
             this.lblJugador1.Size = new System.Drawing.Size(63, 13);
             this.lblJugador1.TabIndex = 18;
@@ -73,7 +74,7 @@
             this.lblJugador2.AutoSize = true;
             this.lblJugador2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblJugador2.ForeColor = System.Drawing.Color.White;
-            this.lblJugador2.Location = new System.Drawing.Point(947, 305);
+            this.lblJugador2.Location = new System.Drawing.Point(949, 264);
             this.lblJugador2.Name = "lblJugador2";
             this.lblJugador2.Size = new System.Drawing.Size(63, 13);
             this.lblJugador2.TabIndex = 19;
@@ -84,7 +85,7 @@
             this.lblJugador3.AutoSize = true;
             this.lblJugador3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblJugador3.ForeColor = System.Drawing.Color.White;
-            this.lblJugador3.Location = new System.Drawing.Point(455, 99);
+            this.lblJugador3.Location = new System.Drawing.Point(711, 29);
             this.lblJugador3.Name = "lblJugador3";
             this.lblJugador3.Size = new System.Drawing.Size(63, 13);
             this.lblJugador3.TabIndex = 20;
@@ -104,7 +105,7 @@
             // button9
             // 
             this.button9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button9.Location = new System.Drawing.Point(1051, 29);
+            this.button9.Location = new System.Drawing.Point(1328, 29);
             this.button9.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(124, 31);
@@ -127,7 +128,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(713, 380);
+            this.label1.Location = new System.Drawing.Point(764, 437);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(44, 16);
             this.label1.TabIndex = 22;
@@ -135,41 +136,50 @@
             // 
             // pictureBox6
             // 
-            this.pictureBox6.Location = new System.Drawing.Point(580, 239);
+            this.pictureBox6.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox6.Location = new System.Drawing.Point(561, 296);
             this.pictureBox6.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox6.Name = "pictureBox6";
-            this.pictureBox6.Size = new System.Drawing.Size(67, 32);
+            this.pictureBox6.Size = new System.Drawing.Size(148, 139);
             this.pictureBox6.TabIndex = 24;
             this.pictureBox6.TabStop = false;
             // 
             // flowMano1
             // 
-            this.flowMano1.Location = new System.Drawing.Point(404, 534);
+            this.flowMano1.AutoScroll = true;
+            this.flowMano1.BackColor = System.Drawing.Color.Transparent;
+            this.flowMano1.Location = new System.Drawing.Point(381, 532);
             this.flowMano1.Name = "flowMano1";
-            this.flowMano1.Size = new System.Drawing.Size(400, 100);
+            this.flowMano1.Size = new System.Drawing.Size(857, 172);
             this.flowMano1.TabIndex = 25;
             // 
             // flowMano4
             // 
+            this.flowMano4.AutoScroll = true;
+            this.flowMano4.BackColor = System.Drawing.Color.Transparent;
             this.flowMano4.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowMano4.Location = new System.Drawing.Point(12, 296);
             this.flowMano4.Name = "flowMano4";
-            this.flowMano4.Size = new System.Drawing.Size(400, 100);
+            this.flowMano4.Size = new System.Drawing.Size(544, 172);
             this.flowMano4.TabIndex = 26;
             // 
             // flowMano3
             // 
-            this.flowMano3.Location = new System.Drawing.Point(380, 134);
+            this.flowMano3.AutoScroll = true;
+            this.flowMano3.BackColor = System.Drawing.Color.Transparent;
+            this.flowMano3.Location = new System.Drawing.Point(325, 45);
             this.flowMano3.Name = "flowMano3";
-            this.flowMano3.Size = new System.Drawing.Size(400, 100);
+            this.flowMano3.Size = new System.Drawing.Size(927, 178);
             this.flowMano3.TabIndex = 27;
             // 
             // flowMano2
             // 
+            this.flowMano2.AutoScroll = true;
+            this.flowMano2.BackColor = System.Drawing.Color.Transparent;
             this.flowMano2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowMano2.Location = new System.Drawing.Point(832, 325);
+            this.flowMano2.Location = new System.Drawing.Point(872, 296);
             this.flowMano2.Name = "flowMano2";
-            this.flowMano2.Size = new System.Drawing.Size(400, 100);
+            this.flowMano2.Size = new System.Drawing.Size(580, 172);
             this.flowMano2.TabIndex = 26;
             // 
             // Ventana
@@ -179,7 +189,7 @@
             this.BackColor = System.Drawing.Color.Red;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1251, 656);
+            this.ClientSize = new System.Drawing.Size(1528, 805);
             this.Controls.Add(this.flowMano2);
             this.Controls.Add(this.flowMano3);
             this.Controls.Add(this.flowMano4);
