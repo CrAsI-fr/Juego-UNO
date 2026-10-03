@@ -36,53 +36,29 @@ namespace Juego_UNO
 
         // Controles de cada jugador, en orden de posicion:
         // 1 abajo, 2 derecha, 3 arriba, 4 izquierda
-        private ComboBox[] combosMano;
         private Label[] etiquetasNombre;
         private Label[] indicadoresTurno;
-        private Button[] botonesJugar;
-        private Button[] botonesRobar;
         private PictureBox[] picturesMano;
         private PictureBox pictureBoxDescarte;
 
+        // TODO (Parte 3): contenedores donde se mostraran las cartas de cada jugador
+        // como imagenes individuales, con doble clic para jugar.
+        // private FlowLayoutPanel[] manosJugadores;
 
         public Ventana()
         {
             InitializeComponent();
 
-            combosMano = new[] { comboBox1, comboBox2, comboBox3, comboBox4 };
             etiquetasNombre = new[] { lblJugador1, lblJugador2, lblJugador3, lblJugador4 };
-            botonesJugar = new[] { button1, button4, button7, button6 };
-            botonesRobar = new[] { button2, button3, button8, button5 };
             indicadoresTurno = etiquetasNombre.Select(_ => CrearIndicadorTurno()).ToArray();
 
             picturesMano = new[] { pictureBox1, pictureBox2, pictureBox5, pictureBox3 };
             pictureBoxDescarte = pictureBox4;
 
-            for (int i = 0; i < NumJugadores; i++)
-            {
-                int posicion = i;
-                combosMano[i].SelectedIndexChanged += (s, e) => MostrarCartaSeleccionada(posicion);
-            }
-
-            // Solo se puede elegir una carta de la lista, no escribir texto.
-            // La lista desplegable es mas ancha que el combo para que quepan nombres largos.
-            foreach (var combo in combosMano)
-            {
-                combo.DropDownStyle = ComboBoxStyle.DropDownList;
-                combo.DropDownWidth = 200;
-            }
-
-            // Cada boton sabe a que jugador pertenece por su posicion en el arreglo
-            for (int i = 0; i < NumJugadores; i++)
-            {
-                int posicion = i;
-                botonesJugar[i].Click += (s, e) => JugarCarta(posicion);
-                botonesRobar[i].Click += (s, e) => RobarCarta(posicion);
-            }
-
             label1.Text = "";
             label1.Font = new Font(Font.FontFamily, 12, FontStyle.Bold);
             ActualizarTurno();
+            Load += (s, e) => AcomodarLayout();
 
             FormClosing += Ventana_FormClosing;
         }
@@ -159,10 +135,13 @@ namespace Juego_UNO
             ActualizarTurno();
         }
 
-        /// <summary>
-        /// El jugador tira la carta seleccionada en su combo sobre label1.
-        /// La carta que estaba arriba regresa al mazo en una posicion aleatoria.
-        /// </summary>
+        /* ============================================================
+         * PENDIENTE (Parte 3): reemplazar JugarCarta y RobarCarta por la
+         * logica de doble clic sobre las cartas mostradas en pantalla,
+         * una vez que existan los FlowLayoutPanel de cada jugador.
+         * Se dejan comentadas para no perder la logica de validacion.
+         * ============================================================
+
         private void JugarCarta(int posicion)
         {
             var jugador = jugadores[posicion];
@@ -174,11 +153,9 @@ namespace Juego_UNO
                 return;
             }
 
-            // Se valida antes de registrar, para que el log solo tenga jugadas que si ocurrieron
             bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
             bool coincideColor = (carta.Color != null && carta.Color.Equals(colorActual));
             bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
-            // Mismo simbolo aunque sea de otro color: +2 sobre +2, bloqueo sobre bloqueo, reversa sobre reversa
             bool coincideEfecto = (carta.Efecto != null && carta.Efecto.Equals(cartaArriba.Efecto));
 
             if (!esComodin && !coincideColor && !coincideNumero && !coincideEfecto)
@@ -189,7 +166,6 @@ namespace Juego_UNO
                 return;
             }
 
-            // El color de un comodin se pide antes de registrar, para guardarlo en jugada.color_elegido
             string colorElegido = null;
             if (esComodin)
             {
@@ -222,21 +198,25 @@ namespace Juego_UNO
             ActualizarTurno();
         }
 
-        /// <summary>
-        /// El jugador en turno roba una carta del mazo. Puede robar las veces que quiera;
-        /// su turno termina cuando juega una carta o cuando pasa.
-        /// </summary>
         private void RobarCarta(int posicion)
         {
             if (DarCartas(posicion, 1) == 0)
                 return;
 
-            // Queda seleccionada la carta recien robada
             var combo = combosMano[posicion];
             combo.SelectedIndex = combo.Items.Count - 1;
 
-            ActualizarTurno();      // si el mazo se vacio, se activa "Pasar"
+            ActualizarTurno();
         }
+
+        private void MostrarCartaSeleccionada(int posicion)
+        {
+            if (combosMano[posicion].SelectedItem is Carta carta)
+                MostrarCartaEnPictureBox(picturesMano[posicion], carta);
+            else
+                picturesMano[posicion].Image = null;
+        }
+        * ============================================================ */
 
         /// <summary>
         /// El jugador en turno pasa sin tirar. Solo se permite cuando el mazo esta vacio,
@@ -295,7 +275,6 @@ namespace Juego_UNO
                     turno = Siguiente(turno, 2);
                     break;
                 case "+4":
-                    // El siguiente roba y pierde su turno (el color ya se eligio en JugarCarta)
                     DarCartas(Siguiente(turno), 4);
                     turno = Siguiente(turno, 2);
                     break;
@@ -325,7 +304,6 @@ namespace Juego_UNO
 
             for (int i = 0; i < cantidad; i++)
             {
-                // Solo pasa si todas las cartas estan en las manos de los jugadores
                 if (mazo.Count == 0)
                 {
                     MessageBox.Show("Ya no quedan cartas para robar.", "UNO",
@@ -384,7 +362,6 @@ namespace Juego_UNO
             }
             catch (ErrorBaseDatos ex)
             {
-                // No se impide cerrar; solo se avisa
                 MostrarErrorBaseDatos(ex);
             }
         }
@@ -455,14 +432,14 @@ namespace Juego_UNO
             }
         }
 
+        /// <summary>
+        /// PENDIENTE (Parte 3): hoy no hace nada visual, porque los combo box ya no existen.
+        /// Aqui se va a mostrar la mano del jugador como imagenes dentro de su FlowLayoutPanel.
+        /// </summary>
         private void MostrarMano(int posicion)
         {
-            var combo = combosMano[posicion];
-            combo.Items.Clear();
-            foreach (var carta in jugadores[posicion].Mano)
-                combo.Items.Add(carta);
-            if (combo.Items.Count > 0)
-                combo.SelectedIndex = 0;
+            // TODO Parte 3: recorrer jugadores[posicion].Mano y agregar un PictureBox
+            // por carta dentro de manosJugadores[posicion], con doble clic para jugarla.
         }
 
         /// <summary>
@@ -487,7 +464,7 @@ namespace Juego_UNO
         }
 
         /// <summary>
-        /// Solo el jugador en turno tiene sus botones activos y el circulo amarillo junto a su nombre.
+        /// Resalta al jugador en turno con el circulo amarillo junto a su nombre.
         /// "Pasar" solo se activa cuando ya no quedan cartas en el mazo.
         /// </summary>
         private void ActualizarTurno()
@@ -495,13 +472,10 @@ namespace Juego_UNO
             for (int i = 0; i < NumJugadores; i++)
             {
                 bool enTurno = partidaEnCurso && i == turno;
-                botonesJugar[i].Enabled = enTurno;
-                botonesRobar[i].Enabled = enTurno;
                 indicadoresTurno[i].Visible = enTurno;
 
                 if (enTurno)
                 {
-                    // Se acomoda a la derecha del nombre, que cambia de largo
                     var etiqueta = etiquetasNombre[i];
                     indicadoresTurno[i].Location = new Point(
                         etiqueta.Right + 2,
@@ -538,14 +512,6 @@ namespace Juego_UNO
 
         }
 
-        private void MostrarCartaSeleccionada(int posicion)
-        {
-            if (combosMano[posicion].SelectedItem is Carta carta)
-                MostrarCartaEnPictureBox(picturesMano[posicion], carta);
-            else
-                picturesMano[posicion].Image = null;
-        }
-
         private static string NombreArchivo(Carta carta, string colorMostrar = null)
         {
             if (carta.Tipo == "ordinaria")
@@ -569,11 +535,47 @@ namespace Juego_UNO
             string ruta = Path.Combine(Application.StartupPath, "Cartas", NombreArchivo(carta, colorMostrar));
             return File.Exists(ruta) ? Image.FromFile(ruta) : null;
         }
+
         private static void MostrarCartaEnPictureBox(PictureBox pb, Carta carta, string colorMostrar = null)
         {
             pb.Image?.Dispose();
             pb.Image = ObtenerImagenCarta(carta, colorMostrar);
             pb.SizeMode = PictureBoxSizeMode.Zoom;
+        }
+
+        /// <summary>
+        /// Reacomoda los controles segun el tamaño real de la pantalla (tras maximizar),
+        /// porque sus posiciones de diseño son fijas y quedarian apretadas en una esquina.
+        /// </summary>
+        private void AcomodarLayout()
+        {
+            int w = ClientSize.Width;
+            int h = ClientSize.Height;
+
+            // Jugador 1 (abajo, centro)
+            pictureBox1.Location = new Point(w / 2 - pictureBox1.Width / 2, h - 230);
+            lblJugador1.Location = new Point(pictureBox1.Right + 15, pictureBox1.Top + pictureBox1.Height / 2 - 8);
+
+            // Jugador 2 (derecha, centro vertical)
+            pictureBox2.Location = new Point(w - 230, h / 2 - pictureBox2.Height / 2);
+            lblJugador2.Location = new Point(pictureBox2.Left - 90, pictureBox2.Top + pictureBox2.Height / 2 - 8);
+
+            // Jugador 3 (arriba, centro)
+            pictureBox5.Location = new Point(w / 2 - pictureBox5.Width / 2, 20);
+            lblJugador3.Location = new Point(pictureBox5.Right + 15, pictureBox5.Top + pictureBox5.Height / 2 - 8);
+
+            // Jugador 4 (izquierda, centro vertical)
+            pictureBox3.Location = new Point(130, h / 2 - pictureBox3.Height / 2);
+            lblJugador4.Location = new Point(pictureBox3.Right + 15, pictureBox3.Top + pictureBox3.Height / 2 - 8);
+
+            // Centro: mazo y descarte
+            pictureBox4.Location = new Point(w / 2 - pictureBox4.Width / 2 - 60, h / 2 - pictureBox4.Height / 2);
+            pictureBox6.Location = new Point(w / 2 - pictureBox6.Width / 2 + 60, h / 2 - pictureBox6.Height / 2);
+            label1.Location = new Point(pictureBox4.Left, pictureBox4.Bottom + 10);
+            botonPasar.Location = new Point(w / 2 - botonPasar.Width / 2, h / 2 + 90);
+
+            // "Empezar juego" en la esquina
+            button9.Location = new Point(w - button9.Width - 30, 20);
         }
 
     }
