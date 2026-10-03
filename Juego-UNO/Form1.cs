@@ -38,7 +38,6 @@ namespace Juego_UNO
         // 1 abajo, 2 derecha, 3 arriba, 4 izquierda
         private Label[] etiquetasNombre;
         private Label[] indicadoresTurno;
-        private PictureBox[] picturesMano;
         private PictureBox pictureBoxDescarte;
 
         // TODO (Parte 3): contenedores donde se mostraran las cartas de cada jugador
@@ -52,7 +51,6 @@ namespace Juego_UNO
             etiquetasNombre = new[] { lblJugador1, lblJugador2, lblJugador3, lblJugador4 };
             indicadoresTurno = etiquetasNombre.Select(_ => CrearIndicadorTurno()).ToArray();
 
-            picturesMano = new[] { pictureBox1, pictureBox2, pictureBox5, pictureBox3 };
             pictureBoxDescarte = pictureBox4;
 
             label1.Text = "";
@@ -553,20 +551,20 @@ namespace Juego_UNO
             int h = ClientSize.Height;
 
             // Jugador 1 (abajo, centro)
-            pictureBox1.Location = new Point(w / 2 - pictureBox1.Width / 2, h - 230);
-            lblJugador1.Location = new Point(pictureBox1.Right + 15, pictureBox1.Top + pictureBox1.Height / 2 - 8);
+            flowMano1.Location = new Point(w / 2 - flowMano1.Width / 2, h - 150);
+            lblJugador1.Location = new Point(flowMano1.Left, flowMano1.Top - 20);
 
             // Jugador 2 (derecha, centro vertical)
-            pictureBox2.Location = new Point(w - 230, h / 2 - pictureBox2.Height / 2);
-            lblJugador2.Location = new Point(pictureBox2.Left - 90, pictureBox2.Top + pictureBox2.Height / 2 - 8);
+            flowMano2.Location = new Point(w - flowMano2.Width - 30, h / 2 - flowMano2.Height / 2);
+            lblJugador2.Location = new Point(flowMano2.Left, flowMano2.Top - 20);
 
             // Jugador 3 (arriba, centro)
-            pictureBox5.Location = new Point(w / 2 - pictureBox5.Width / 2, 20);
-            lblJugador3.Location = new Point(pictureBox5.Right + 15, pictureBox5.Top + pictureBox5.Height / 2 - 8);
+            flowMano3.Location = new Point(w / 2 - flowMano3.Width / 2, 50);
+            lblJugador3.Location = new Point(flowMano3.Left, flowMano3.Top - 20);
 
             // Jugador 4 (izquierda, centro vertical)
-            pictureBox3.Location = new Point(130, h / 2 - pictureBox3.Height / 2);
-            lblJugador4.Location = new Point(pictureBox3.Right + 15, pictureBox3.Top + pictureBox3.Height / 2 - 8);
+            flowMano4.Location = new Point(30, h / 2 - flowMano4.Height / 2);
+            lblJugador4.Location = new Point(flowMano4.Left, flowMano4.Top - 20);
 
             // Centro: mazo y descarte
             pictureBox4.Location = new Point(w / 2 - pictureBox4.Width / 2 - 60, h / 2 - pictureBox4.Height / 2);
