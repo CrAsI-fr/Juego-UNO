@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,12 +17,20 @@ namespace Juego_UNO
         private const int NumJugadores = 4;
         private const int CartasPorJugador = 7;
 
+        // Tamaño de las cartas en la mano (en los lados se muestran giradas)
+        private const int AnchoCarta = 80;
+        private const int AltoCarta = 120;
+        // Cuanto "sube" una carta al pasar el mouse sobre ella
+        private const int Elevacion = 12;
+        // Tamaño de las cartas del centro (mazo y descarte)
+        private static readonly Size TamañoCentro = new Size(100, 150);
+
         private static readonly Random aleatorio = new Random();
 
         // Ordenados por su posicion en la mesa (partida_jugador.posicion)
         private List<Jugador> jugadores = new List<Jugador>();
         private List<Carta> mazo = new List<Carta>();
-        // Carta boca arriba (label1). Al jugarse otra encima, esta regresa al mazo.
+        // Carta boca arriba (pictureBox4). Al jugarse otra encima, esta regresa al mazo.
         private Carta cartaArriba;
         // Color que vale ahora: el de cartaArriba, o el elegido si es un comodin.
         // Se guarda aparte para no modificar la carta (los comodines no tienen color propio).
@@ -36,55 +45,89 @@ namespace Juego_UNO
 
         // Controles de cada jugador, en orden de posicion:
         // 1 abajo, 2 derecha, 3 arriba, 4 izquierda
-        private ComboBox[] combosMano;
         private Label[] etiquetasNombre;
         private Label[] indicadoresTurno;
-        private Button[] botonesJugar;
-        private Button[] botonesRobar;
-        private PictureBox[] picturesMano;
         private PictureBox pictureBoxDescarte;
+        private PictureBox pictureBoxMazo;
+        private FlowLayoutPanel[] manosJugadores;
+        // Espacio maximo de cada mano; el panel se ajusta y centra dentro de el
+        private Rectangle[] areasMano = new Rectangle[NumJugadores];
 
+        // Las imagenes se cargan una sola vez y se reutilizan (cargarlas en cada jugada
+        // deja archivos bloqueados y consume memoria)
+        private readonly Dictionary<string, Image> imagenes = new Dictionary<string, Image>();
 
         public Ventana()
         {
             InitializeComponent();
 
-            combosMano = new[] { comboBox1, comboBox2, comboBox3, comboBox4 };
             etiquetasNombre = new[] { lblJugador1, lblJugador2, lblJugador3, lblJugador4 };
-            botonesJugar = new[] { button1, button4, button7, button6 };
-            botonesRobar = new[] { button2, button3, button8, button5 };
             indicadoresTurno = etiquetasNombre.Select(_ => CrearIndicadorTurno()).ToArray();
 
-            picturesMano = new[] { pictureBox1, pictureBox2, pictureBox5, pictureBox3 };
             pictureBoxDescarte = pictureBox4;
+            pictureBoxMazo = pictureBox6;
+            manosJugadores = new[] { flowMano1, flowMano2, flowMano3, flowMano4 };
 
-            for (int i = 0; i < NumJugadores; i++)
-            {
-                int posicion = i;
-                combosMano[i].SelectedIndexChanged += (s, e) => MostrarCartaSeleccionada(posicion);
-            }
+            AplicarEstilo();
+            //pictureBoxMazo.Click += (s, e) => RobarCarta(); SOLO creas la funcion RbarCarta() sin parametros, aproveha DarCartas()
+            //pictureBoxMazo.Cursor = Cursors.Hand;
 
-            // Solo se puede elegir una carta de la lista, no escribir texto.
-            // La lista desplegable es mas ancha que el combo para que quepan nombres largos.
-            foreach (var combo in combosMano)
-            {
-                combo.DropDownStyle = ComboBoxStyle.DropDownList;
-                combo.DropDownWidth = 200;
-            }
-
-            // Cada boton sabe a que jugador pertenece por su posicion en el arreglo
-            for (int i = 0; i < NumJugadores; i++)
-            {
-                int posicion = i;
-                botonesJugar[i].Click += (s, e) => JugarCarta(posicion);
-                botonesRobar[i].Click += (s, e) => RobarCarta(posicion);
-            }
-
-            label1.Text = "";
-            label1.Font = new Font(Font.FontFamily, 12, FontStyle.Bold);
             ActualizarTurno();
+            Load += (s, e) => AcomodarLayout();
+            Resize += (s, e) => AcomodarLayout();
 
             FormClosing += Ventana_FormClosing;
+        }
+
+        /// <summary>
+        /// Estilo visual de los controles. Se hace desde codigo para no tener que tocar el diseñador.
+        /// </summary>
+        private void AplicarEstilo()
+        {
+            // Evita el parpadeo al redibujar las cartas sobre la imagen de fondo
+            DoubleBuffered = true;
+
+            for (int i = 0; i < NumJugadores; i++)
+            {
+                var panel = manosJugadores[i];
+                ActivarDobleBuffer(panel);
+                panel.AutoScroll = true;
+                panel.WrapContents = false;   // una sola fila (o columna) con scroll
+                panel.FlowDirection = EsLateral(i) ? FlowDirection.TopDown : FlowDirection.LeftToRight;
+                panel.BackColor = Color.Transparent;
+
+                var etiqueta = etiquetasNombre[i];
+                etiqueta.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+                etiqueta.ForeColor = Color.White;
+                etiqueta.BackColor = Color.FromArgb(140, 0, 0, 0);
+                etiqueta.Padding = new Padding(8, 3, 8, 3);
+            }
+
+            foreach (var pb in new[] { pictureBoxDescarte, pictureBoxMazo })
+            {
+                pb.Size = TamañoCentro;
+                pb.SizeMode = PictureBoxSizeMode.Zoom;
+                pb.BackColor = Color.Transparent;
+            }
+            pictureBoxMazo.Image = ObtenerReverso();
+
+            // label1 indica el color en juego (importa sobre todo despues de un comodin)
+            label1.Text = "";
+            label1.Visible = false;
+            label1.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            label1.Padding = new Padding(10, 4, 10, 4);
+
+            foreach (var boton in new[] { button9, botonPasar })
+            {
+                boton.FlatStyle = FlatStyle.Flat;
+                boton.FlatAppearance.BorderColor = Color.White;
+                boton.BackColor = Color.FromArgb(200, 20, 20, 20);
+                boton.ForeColor = Color.White;
+                boton.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+                boton.Cursor = Cursors.Hand;
+                boton.AutoSize = true;
+                boton.Padding = new Padding(8, 2, 8, 2);
+            }
         }
 
         /// <summary>
@@ -159,26 +202,17 @@ namespace Juego_UNO
             ActualizarTurno();
         }
 
-        /// <summary>
-        /// El jugador tira la carta seleccionada en su combo sobre label1.
-        /// La carta que estaba arriba regresa al mazo en una posicion aleatoria.
-        /// </summary>
-        private void JugarCarta(int posicion)
+        private void JugarCarta(int posicion, Carta carta)
         {
-            var jugador = jugadores[posicion];
-            var carta = combosMano[posicion].SelectedItem as Carta;
-            if (carta == null)
-            {
-                MessageBox.Show($"{jugador.Nombre}, selecciona una carta para jugar.", "UNO",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Solo puede jugar quien tiene el turno
+            if (posicion != turno || !partidaEnCurso)
                 return;
-            }
 
-            // Se valida antes de registrar, para que el log solo tenga jugadas que si ocurrieron
+            var jugador = jugadores[posicion];
+
             bool esComodin = (carta.Efecto != null && (carta.Efecto.Equals("cambiar_color") || carta.Efecto.Equals("+4")));
             bool coincideColor = (carta.Color != null && carta.Color.Equals(colorActual));
             bool coincideNumero = (carta.Numero != null && carta.Numero == cartaArriba.Numero);
-            // Mismo simbolo aunque sea de otro color: +2 sobre +2, bloqueo sobre bloqueo, reversa sobre reversa
             bool coincideEfecto = (carta.Efecto != null && carta.Efecto.Equals(cartaArriba.Efecto));
 
             if (!esComodin && !coincideColor && !coincideNumero && !coincideEfecto)
@@ -189,7 +223,6 @@ namespace Juego_UNO
                 return;
             }
 
-            // El color de un comodin se pide antes de registrar, para guardarlo en jugada.color_elegido
             string colorElegido = null;
             if (esComodin)
             {
@@ -222,21 +255,28 @@ namespace Juego_UNO
             ActualizarTurno();
         }
 
-        /// <summary>
-        /// El jugador en turno roba una carta del mazo. Puede robar las veces que quiera;
-        /// su turno termina cuando juega una carta o cuando pasa.
-        /// </summary>
+        /* ============================================================
+        * PENDIENTE: RobarCarta.
+        * ============================================================
         private void RobarCarta(int posicion)
         {
             if (DarCartas(posicion, 1) == 0)
                 return;
 
-            // Queda seleccionada la carta recien robada
             var combo = combosMano[posicion];
             combo.SelectedIndex = combo.Items.Count - 1;
 
-            ActualizarTurno();      // si el mazo se vacio, se activa "Pasar"
+            ActualizarTurno();
         }
+
+        private void MostrarCartaSeleccionada(int posicion)
+        {
+            if (combosMano[posicion].SelectedItem is Carta carta)
+                MostrarCartaEnPictureBox(picturesMano[posicion], carta);
+            else
+                picturesMano[posicion].Image = null;
+        }
+        * ============================================================ */
 
         /// <summary>
         /// El jugador en turno pasa sin tirar. Solo se permite cuando el mazo esta vacio,
@@ -295,7 +335,6 @@ namespace Juego_UNO
                     turno = Siguiente(turno, 2);
                     break;
                 case "+4":
-                    // El siguiente roba y pierde su turno (el color ya se eligio en JugarCarta)
                     DarCartas(Siguiente(turno), 4);
                     turno = Siguiente(turno, 2);
                     break;
@@ -325,7 +364,6 @@ namespace Juego_UNO
 
             for (int i = 0; i < cantidad; i++)
             {
-                // Solo pasa si todas las cartas estan en las manos de los jugadores
                 if (mazo.Count == 0)
                 {
                     MessageBox.Show("Ya no quedan cartas para robar.", "UNO",
@@ -384,7 +422,6 @@ namespace Juego_UNO
             }
             catch (ErrorBaseDatos ex)
             {
-                // No se impide cerrar; solo se avisa
                 MostrarErrorBaseDatos(ex);
             }
         }
@@ -449,45 +486,77 @@ namespace Juego_UNO
         private void MostrarManos()
         {
             for (int i = 0; i < jugadores.Count; i++)
-            {
-                etiquetasNombre[i].Text = jugadores[i].Nombre;
                 MostrarMano(i);
-            }
-        }
-
-        private void MostrarMano(int posicion)
-        {
-            var combo = combosMano[posicion];
-            combo.Items.Clear();
-            foreach (var carta in jugadores[posicion].Mano)
-                combo.Items.Add(carta);
-            if (combo.Items.Count > 0)
-                combo.SelectedIndex = 0;
         }
 
         /// <summary>
-        /// Muestra la carta de arriba en label1, con el fondo del color que esta en juego.
-        /// Si es un comodin, tambien se escribe el color elegido.
+        /// Dibuja todas las cartas de la mano del jugador, boca arriba, dentro de su
+        /// FlowLayoutPanel. Doble clic en una carta para jugarla. Las cartas del jugador
+        /// en turno se elevan al pasar el mouse sobre ellas.
+        /// </summary>
+        private void MostrarMano(int posicion)
+        {
+            var contenedor = manosJugadores[posicion];
+            var giro = GiroCartas(posicion);
+            var tamaño = EsLateral(posicion) ? new Size(AltoCarta, AnchoCarta) : new Size(AnchoCarta, AltoCarta);
+
+            contenedor.SuspendLayout();
+
+            // Dispose libera los PictureBox anteriores; Controls.Clear() solo los quitaria
+            foreach (var anterior in contenedor.Controls.Cast<Control>().ToList())
+                anterior.Dispose();
+
+            foreach (var carta in jugadores[posicion].Mano)
+            {
+                var pic = new PictureBox
+                {
+                    Image = ObtenerImagenCarta(carta, null, giro),
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Size = tamaño,
+                    Margin = MargenCarta(posicion, false),
+                    BackColor = Color.Transparent,
+                    Tag = carta
+                };
+                pic.DoubleClick += (s, e) => JugarCarta(posicion, carta);
+                pic.MouseEnter += (s, e) =>
+                {
+                    if (partidaEnCurso && posicion == turno)
+                        pic.Margin = MargenCarta(posicion, true);
+                };
+                pic.MouseLeave += (s, e) => pic.Margin = MargenCarta(posicion, false);
+                contenedor.Controls.Add(pic);
+            }
+
+            contenedor.ResumeLayout();
+
+            int cantidad = jugadores[posicion].Mano.Count;
+            etiquetasNombre[posicion].Text = $"{jugadores[posicion].Nombre}  ·  {cantidad} {(cantidad == 1 ? "carta" : "cartas")}";
+            AjustarMano(posicion);
+        }
+
+        /// <summary>
+        /// Muestra la carta de arriba en el centro, y en label1 el color que esta en juego.
         /// </summary>
         private void MostrarDescarte()
         {
-            label1.Text = cartaArriba.ToString();
-            if (cartaArriba.Color == null && colorActual != null)
-                label1.Text += " → " + colorActual;
+            MostrarCartaEnPictureBox(pictureBoxDescarte, cartaArriba, colorActual);
 
+            label1.Text = "Color en juego: " + Capitalizar(colorActual);
             switch (colorActual)
             {
                 case "rojo": label1.BackColor = Color.DarkRed; label1.ForeColor = Color.White; break;
                 case "azul": label1.BackColor = Color.RoyalBlue; label1.ForeColor = Color.White; break;
                 case "verde": label1.BackColor = Color.ForestGreen; label1.ForeColor = Color.White; break;
                 case "amarillo": label1.BackColor = Color.Gold; label1.ForeColor = Color.Black; break;
-                default: label1.BackColor = Color.Transparent; label1.ForeColor = Color.Black; break;
+                default: label1.BackColor = Color.Transparent; label1.ForeColor = Color.White; break;
             }
-            MostrarCartaEnPictureBox(pictureBoxDescarte, cartaArriba, colorActual);
+            label1.Visible = true;
+            CentrarDebajo(label1, pictureBoxDescarte);
         }
 
         /// <summary>
-        /// Solo el jugador en turno tiene sus botones activos y el circulo amarillo junto a su nombre.
+        /// Resalta al jugador en turno con el circulo amarillo y su nombre en amarillo.
+        /// Solo sus cartas muestran la mano para jugar.
         /// "Pasar" solo se activa cuando ya no quedan cartas en el mazo.
         /// </summary>
         private void ActualizarTurno()
@@ -495,21 +564,27 @@ namespace Juego_UNO
             for (int i = 0; i < NumJugadores; i++)
             {
                 bool enTurno = partidaEnCurso && i == turno;
-                botonesJugar[i].Enabled = enTurno;
-                botonesRobar[i].Enabled = enTurno;
+                var etiqueta = etiquetasNombre[i];
+                etiqueta.ForeColor = enTurno ? Color.Yellow : Color.White;
                 indicadoresTurno[i].Visible = enTurno;
 
                 if (enTurno)
                 {
-                    // Se acomoda a la derecha del nombre, que cambia de largo
-                    var etiqueta = etiquetasNombre[i];
                     indicadoresTurno[i].Location = new Point(
-                        etiqueta.Right + 2,
+                        etiqueta.Right + 4,
                         etiqueta.Top + (etiqueta.Height - indicadoresTurno[i].Height) / 2);
+                }
+
+                foreach (Control carta in manosJugadores[i].Controls)
+                {
+                    carta.Cursor = enTurno ? Cursors.Hand : Cursors.Default;
+                    carta.Margin = MargenCarta(i, false);
                 }
             }
 
+            // Solo se muestra cuando se puede usar, para no estorbar junto al mazo
             botonPasar.Enabled = partidaEnCurso && mazo.Count == 0;
+            botonPasar.Visible = botonPasar.Enabled;
 
             ActualizarTitulo();
         }
@@ -538,13 +613,9 @@ namespace Juego_UNO
 
         }
 
-        private void MostrarCartaSeleccionada(int posicion)
-        {
-            if (combosMano[posicion].SelectedItem is Carta carta)
-                MostrarCartaEnPictureBox(picturesMano[posicion], carta);
-            else
-                picturesMano[posicion].Image = null;
-        }
+        // ============================================================
+        // Imagenes de las cartas
+        // ============================================================
 
         private static string NombreArchivo(Carta carta, string colorMostrar = null)
         {
@@ -564,17 +635,242 @@ namespace Juego_UNO
             }
         }
 
-        private static Image ObtenerImagenCarta(Carta carta, string colorMostrar = null)
+        /// <summary>
+        /// Imagen de la carta, cargada una sola vez y guardada para reutilizarla.
+        /// 'giro' sirve para las manos de los lados, donde las cartas van acostadas.
+        /// </summary>
+        private Image ObtenerImagenCarta(Carta carta, string colorMostrar = null,
+            RotateFlipType giro = RotateFlipType.RotateNoneFlipNone)
         {
-            string ruta = Path.Combine(Application.StartupPath, "Cartas", NombreArchivo(carta, colorMostrar));
-            return File.Exists(ruta) ? Image.FromFile(ruta) : null;
+            string archivo = NombreArchivo(carta, colorMostrar);
+            string clave = archivo + "|" + giro;
+
+            Image imagen;
+            if (imagenes.TryGetValue(clave, out imagen))
+                return imagen;
+
+            imagen = CargarImagen(archivo);
+            if (imagen != null && giro != RotateFlipType.RotateNoneFlipNone)
+                imagen.RotateFlip(giro);
+            imagenes[clave] = imagen;
+            return imagen;
         }
-        private static void MostrarCartaEnPictureBox(PictureBox pb, Carta carta, string colorMostrar = null)
+
+        /// <summary>
+        /// Lee la imagen de la carpeta Cartas sin dejar el archivo bloqueado.
+        /// Devuelve null si no existe.
+        /// </summary>
+        private static Image CargarImagen(string archivo)
         {
-            pb.Image?.Dispose();
+            string ruta = Path.Combine(Application.StartupPath, "Cartas", archivo);
+            if (!File.Exists(ruta))
+                return null;
+
+            using (var flujo = new FileStream(ruta, FileMode.Open, FileAccess.Read))
+            using (var original = Image.FromStream(flujo))
+                return new Bitmap(original);
+        }
+
+        /// <summary>
+        /// Reverso de carta para el mazo del centro. Si agregan Cartas\reverso.png se usa esa
+        /// imagen; si no, se dibuja uno sencillo.
+        /// </summary>
+        private Image ObtenerReverso()
+        {
+            return CargarImagen("reverso.png") ?? DibujarReverso();
+        }
+
+        private static Image DibujarReverso()
+        {
+            var bmp = new Bitmap(200, 300);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+
+                // Carta negra con borde blanco y esquinas redondeadas
+                using (var borde = RectanguloRedondeado(new Rectangle(2, 2, 195, 295), 22))
+                using (var interior = RectanguloRedondeado(new Rectangle(14, 14, 171, 271), 14))
+                {
+                    g.FillPath(Brushes.White, borde);
+                    g.FillPath(Brushes.Black, interior);
+                }
+
+                // Ovalo rojo inclinado con "UNO" en amarillo, como el reverso original
+                g.TranslateTransform(100, 150);
+                g.RotateTransform(-30);
+                g.FillEllipse(Brushes.Red, -70, -110, 140, 220);
+                using (var fuente = new Font("Segoe UI", 40, FontStyle.Bold | FontStyle.Italic))
+                using (var formato = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
+                {
+                    g.DrawString("UNO", fuente, Brushes.Black, 3, 3, formato);   // sombra
+                    g.DrawString("UNO", fuente, Brushes.Gold, 0, 0, formato);
+                }
+            }
+            return bmp;
+        }
+
+        private static GraphicsPath RectanguloRedondeado(Rectangle r, int radio)
+        {
+            int d = radio * 2;
+            var path = new GraphicsPath();
+            path.AddArc(r.X, r.Y, d, d, 180, 90);
+            path.AddArc(r.Right - d, r.Y, d, d, 270, 90);
+            path.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
+            path.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
+            path.CloseFigure();
+            return path;
+        }
+
+        private void MostrarCartaEnPictureBox(PictureBox pb, Carta carta, string colorMostrar = null)
+        {
+            // No se hace Dispose de la imagen anterior: esta guardada para reutilizarse
             pb.Image = ObtenerImagenCarta(carta, colorMostrar);
             pb.SizeMode = PictureBoxSizeMode.Zoom;
         }
 
+        // ============================================================
+        // Acomodo de la mesa
+        // ============================================================
+
+        /// <summary>
+        /// Jugadores 2 (derecha) y 4 (izquierda) tienen sus cartas acostadas en columna.
+        /// </summary>
+        private static bool EsLateral(int posicion)
+        {
+            return posicion == 1 || posicion == 3;
+        }
+
+        private static RotateFlipType GiroCartas(int posicion)
+        {
+            switch (posicion)
+            {
+                case 1: return RotateFlipType.Rotate270FlipNone;   // derecha
+                case 3: return RotateFlipType.Rotate90FlipNone;    // izquierda
+                default: return RotateFlipType.RotateNoneFlipNone; // abajo y arriba: derechas para leerlas
+            }
+        }
+
+        /// <summary>
+        /// Margen de cada carta. Al elevarla, el espacio se pasa al otro lado para que
+        /// la carta se mueva hacia el centro de la mesa sin mover a las demas.
+        /// </summary>
+        private static Padding MargenCarta(int posicion, bool elevada)
+        {
+            int cerca = elevada ? 0 : Elevacion;   // espacio del lado del centro de la mesa
+            int lejos = elevada ? Elevacion : 0;
+            switch (posicion)
+            {
+                case 0: return new Padding(3, cerca, 3, lejos);   // abajo: sube
+                case 2: return new Padding(3, lejos, 3, cerca);   // arriba: baja
+                case 3: return new Padding(lejos, 3, cerca, 3);   // izquierda: va a la derecha
+                default: return new Padding(cerca, 3, lejos, 3);  // derecha: va a la izquierda
+            }
+        }
+
+        /// <summary>
+        /// Reacomoda la mesa segun el tamaño de la ventana: una mano por lado, el mazo
+        /// y el descarte al centro. Nada se encima, aunque la pantalla sea chica.
+        /// </summary>
+        private void AcomodarLayout()
+        {
+            int w = ClientSize.Width;
+            int h = ClientSize.Height;
+            if (w == 0 || h == 0)
+                return;   // ventana minimizada
+
+            const int margen = 20;
+            // "Empezar juego" en la esquina superior derecha
+            button9.Location = new Point(w - button9.Width - margen, margen);
+
+            int altoEtiqueta = lblJugador1.Height + 6;
+            // Espacio de una fila (arriba/abajo) o columna (lados): carta + elevacion + scroll
+            int grosorMano = AltoCarta + Elevacion + SystemInformation.HorizontalScrollBarHeight + 6;
+
+            // Abajo y arriba: entre las columnas de los lados
+            int xFila = margen + grosorMano + margen;
+            int anchoFila = Math.Max(AnchoCarta, w - 2 * xFila);
+            int yArriba = margen + altoEtiqueta;
+            int yAbajo = h - margen - grosorMano;
+            areasMano[0] = new Rectangle(xFila, yAbajo, anchoFila, grosorMano);
+            areasMano[2] = new Rectangle(xFila, yArriba, anchoFila, grosorMano);
+
+            // Lados: casi toda la altura, porque las filas de arriba y abajo no llegan a los costados.
+            // Empiezan debajo del boton "Empezar juego" para que el nombre no se encime con el.
+            int yLado = Math.Max(yArriba, button9.Bottom + 10 + altoEtiqueta);
+            int altoLado = Math.Max(AnchoCarta, h - margen - yLado);
+            areasMano[1] = new Rectangle(w - margen - grosorMano, yLado, grosorMano, altoLado);
+            areasMano[3] = new Rectangle(margen, yLado, grosorMano, altoLado);
+
+            for (int i = 0; i < NumJugadores; i++)
+                AjustarMano(i);
+
+            // Centro: mazo a la izquierda y descarte a la derecha
+            int cx = w / 2;
+            int cy = (yArriba + grosorMano + yAbajo) / 2 - 20;
+            pictureBoxMazo.Location = new Point(cx - TamañoCentro.Width - 15, cy - TamañoCentro.Height / 2);
+            pictureBoxDescarte.Location = new Point(cx + 15, cy - TamañoCentro.Height / 2);
+            CentrarDebajo(label1, pictureBoxDescarte);
+            CentrarDebajo(botonPasar, pictureBoxMazo);
+
+            ActualizarTurno();
+        }
+
+        /// <summary>
+        /// Ajusta el panel de la mano al numero de cartas y lo centra en su area,
+        /// con el nombre del jugador encima. Si no caben, el panel usa scroll.
+        /// </summary>
+        private void AjustarMano(int posicion)
+        {
+            var area = areasMano[posicion];
+            var panel = manosJugadores[posicion];
+            bool lateral = EsLateral(posicion);
+
+            int largo = panel.Controls.Cast<Control>()
+                .Sum(c => lateral ? c.Height + c.Margin.Vertical : c.Width + c.Margin.Horizontal);
+
+            if (lateral)
+            {
+                int alto = Math.Min(largo, area.Height);
+                panel.Bounds = new Rectangle(area.X, area.Y + (area.Height - alto) / 2, area.Width, alto);
+            }
+            else
+            {
+                int ancho = Math.Min(largo, area.Width);
+                panel.Bounds = new Rectangle(area.X + (area.Width - ancho) / 2, area.Y, ancho, area.Height);
+            }
+
+            var etiqueta = etiquetasNombre[posicion];
+            int centroX = panel.Left + panel.Width / 2;
+            // Se deja espacio a la derecha para el circulo de turno, sin salirse de la ventana
+            int espacioCirculo = indicadoresTurno[posicion].Width + 8;
+            int x = Math.Min(centroX - etiqueta.Width / 2, ClientSize.Width - etiqueta.Width - espacioCirculo);
+            etiqueta.Location = new Point(
+                Math.Max(0, x),
+                (lateral ? panel.Top : area.Top) - etiqueta.Height - 6);
+        }
+
+        private static void CentrarDebajo(Control control, Control referencia)
+        {
+            control.Location = new Point(
+                referencia.Left + (referencia.Width - control.Width) / 2,
+                referencia.Bottom + 10);
+        }
+
+        private static string Capitalizar(string texto)
+        {
+            return string.IsNullOrEmpty(texto) ? texto : char.ToUpper(texto[0]) + texto.Substring(1);
+        }
+
+        /// <summary>
+        /// DoubleBuffered es protegido en los controles; se activa por reflexion
+        /// para que los paneles de cartas no parpadeen.
+        /// </summary>
+        private static void ActivarDobleBuffer(Control control)
+        {
+            typeof(Control)
+                .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(control, true, null);
+        }
     }
 }
