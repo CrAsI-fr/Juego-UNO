@@ -800,6 +800,10 @@ namespace Juego_UNO
         
         private void RobarCarta(int posicion)
         {
+            // Sin partida en curso no hay jugadores (antes de empezar) o la partida ya termino
+            if (!partidaEnCurso)
+                return;
+
             if (DarCartas(posicion, 1) == 0)
                 return;
 
