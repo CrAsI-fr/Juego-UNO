@@ -39,6 +39,9 @@
             this.botonPasar = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.flowMano1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowMano4 = new System.Windows.Forms.FlowLayoutPanel();
@@ -46,6 +49,7 @@
             this.flowMano2 = new System.Windows.Forms.FlowLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
+<<<<<<< HEAD
 =======
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -53,6 +57,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
 >>>>>>> xop
+=======
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
             this.SuspendLayout();
             // 
             // pictureBox4
@@ -143,6 +149,9 @@
             this.label1.Text = "label1";
             // 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
             // pictureBox6
             // 
             this.pictureBox6.BackColor = System.Drawing.Color.Transparent;
@@ -191,8 +200,11 @@
             this.flowMano2.Size = new System.Drawing.Size(580, 172);
             this.flowMano2.TabIndex = 26;
             // 
+<<<<<<< HEAD
 =======
 >>>>>>> xop
+=======
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
             // Ventana
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -201,15 +213,21 @@
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
             this.ClientSize = new System.Drawing.Size(1528, 805);
             this.Controls.Add(this.flowMano2);
             this.Controls.Add(this.flowMano3);
             this.Controls.Add(this.flowMano4);
             this.Controls.Add(this.flowMano1);
             this.Controls.Add(this.pictureBox6);
+<<<<<<< HEAD
 =======
             this.ClientSize = new System.Drawing.Size(1876, 1025);
 >>>>>>> xop
+=======
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
             this.Controls.Add(this.botonPasar);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button9);
@@ -227,10 +245,14 @@
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
 <<<<<<< HEAD
+<<<<<<< HEAD
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
 =======
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
 >>>>>>> xop
+=======
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -246,13 +268,19 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button botonPasar;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
         private System.Windows.Forms.PictureBox pictureBox6;
         private System.Windows.Forms.FlowLayoutPanel flowMano1;
         private System.Windows.Forms.FlowLayoutPanel flowMano4;
         private System.Windows.Forms.FlowLayoutPanel flowMano3;
         private System.Windows.Forms.FlowLayoutPanel flowMano2;
+<<<<<<< HEAD
 =======
 >>>>>>> xop
+=======
+>>>>>>> 5c9b07f3c620952fa710812ea74819c7eef294cf
     }
 }
 
