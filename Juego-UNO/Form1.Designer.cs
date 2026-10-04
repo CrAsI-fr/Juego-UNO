@@ -38,6 +38,7 @@
             this.button9 = new System.Windows.Forms.Button();
             this.botonPasar = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+<<<<<<< HEAD
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.flowMano1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowMano4 = new System.Windows.Forms.FlowLayoutPanel();
@@ -45,6 +46,13 @@
             this.flowMano2 = new System.Windows.Forms.FlowLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
+=======
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
+>>>>>>> xop
             this.SuspendLayout();
             // 
             // pictureBox4
@@ -134,6 +142,7 @@
             this.label1.TabIndex = 22;
             this.label1.Text = "label1";
             // 
+<<<<<<< HEAD
             // pictureBox6
             // 
             this.pictureBox6.BackColor = System.Drawing.Color.Transparent;
@@ -182,6 +191,8 @@
             this.flowMano2.Size = new System.Drawing.Size(580, 172);
             this.flowMano2.TabIndex = 26;
             // 
+=======
+>>>>>>> xop
             // Ventana
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -189,12 +200,16 @@
             this.BackColor = System.Drawing.Color.Red;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+<<<<<<< HEAD
             this.ClientSize = new System.Drawing.Size(1528, 805);
             this.Controls.Add(this.flowMano2);
             this.Controls.Add(this.flowMano3);
             this.Controls.Add(this.flowMano4);
             this.Controls.Add(this.flowMano1);
             this.Controls.Add(this.pictureBox6);
+=======
+            this.ClientSize = new System.Drawing.Size(1876, 1025);
+>>>>>>> xop
             this.Controls.Add(this.botonPasar);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button9);
@@ -211,7 +226,11 @@
             this.Text = "UNO";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
+<<<<<<< HEAD
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
+=======
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
+>>>>>>> xop
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -226,11 +245,14 @@
         private System.Windows.Forms.Button button9;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button botonPasar;
+<<<<<<< HEAD
         private System.Windows.Forms.PictureBox pictureBox6;
         private System.Windows.Forms.FlowLayoutPanel flowMano1;
         private System.Windows.Forms.FlowLayoutPanel flowMano4;
         private System.Windows.Forms.FlowLayoutPanel flowMano3;
         private System.Windows.Forms.FlowLayoutPanel flowMano2;
+=======
+>>>>>>> xop
     }
 }
 
