@@ -28,81 +28,90 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.BotonRojo = new System.Windows.Forms.Button();
-            this.BotonAzul = new System.Windows.Forms.Button();
-            this.BotonVerde = new System.Windows.Forms.Button();
-            this.BotonAmarillo = new System.Windows.Forms.Button();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormElegirColor));
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             this.SuspendLayout();
             // 
-            // BotonRojo
+            // pictureBox1
             // 
-            this.BotonRojo.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F);
-            this.BotonRojo.Location = new System.Drawing.Point(12, 12);
-            this.BotonRojo.Name = "BotonRojo";
-            this.BotonRojo.Size = new System.Drawing.Size(383, 196);
-            this.BotonRojo.TabIndex = 0;
-            this.BotonRojo.Text = "ROJO";
-            this.BotonRojo.UseVisualStyleBackColor = true;
-            this.BotonRojo.Click += new System.EventHandler(this.BotonRojo_Click);
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(10, 10);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(370, 518);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 1;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
-            // BotonAzul
+            // pictureBox2
             // 
-            this.BotonAzul.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F);
-            this.BotonAzul.Location = new System.Drawing.Point(12, 215);
-            this.BotonAzul.Name = "BotonAzul";
-            this.BotonAzul.Size = new System.Drawing.Size(383, 205);
-            this.BotonAzul.TabIndex = 1;
-            this.BotonAzul.Text = "AZUL";
-            this.BotonAzul.UseVisualStyleBackColor = true;
-            this.BotonAzul.Click += new System.EventHandler(this.BotonAzul_Click);
+            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+            this.pictureBox2.Location = new System.Drawing.Point(390, 10);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(370, 518);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 2;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
             // 
-            // BotonVerde
+            // pictureBox3
             // 
-            this.BotonVerde.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F);
-            this.BotonVerde.Location = new System.Drawing.Point(401, 12);
-            this.BotonVerde.Name = "BotonVerde";
-            this.BotonVerde.Size = new System.Drawing.Size(387, 196);
-            this.BotonVerde.TabIndex = 2;
-            this.BotonVerde.Text = "VERDE";
-            this.BotonVerde.UseVisualStyleBackColor = true;
-            this.BotonVerde.Click += new System.EventHandler(this.button3_Click);
+            this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
+            this.pictureBox3.Location = new System.Drawing.Point(770, 10);
+            this.pictureBox3.Name = "pictureBox3";
+            this.pictureBox3.Size = new System.Drawing.Size(370, 518);
+            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox3.TabIndex = 3;
+            this.pictureBox3.TabStop = false;
+            this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
             // 
-            // BotonAmarillo
+            // pictureBox4
             // 
-            this.BotonAmarillo.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F);
-            this.BotonAmarillo.Location = new System.Drawing.Point(401, 214);
-            this.BotonAmarillo.Name = "BotonAmarillo";
-            this.BotonAmarillo.Size = new System.Drawing.Size(387, 206);
-            this.BotonAmarillo.TabIndex = 3;
-            this.BotonAmarillo.Text = "AMARILLO";
-            this.BotonAmarillo.UseVisualStyleBackColor = true;
-            this.BotonAmarillo.Click += new System.EventHandler(this.BotonAmarillo_Click);
+            this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
+            this.pictureBox4.Location = new System.Drawing.Point(1150, 10);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(370, 518);
+            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox4.TabIndex = 4;
+            this.pictureBox4.TabStop = false;
+            this.pictureBox4.Click += new System.EventHandler(this.pictureBox4_Click);
             // 
             // FormElegirColor
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1970, 558);
             this.ControlBox = false;
-            this.Controls.Add(this.BotonAmarillo);
-            this.Controls.Add(this.BotonVerde);
-            this.Controls.Add(this.BotonAzul);
-            this.Controls.Add(this.BotonRojo);
+            this.Controls.Add(this.pictureBox4);
+            this.Controls.Add(this.pictureBox3);
+            this.Controls.Add(this.pictureBox2);
+            this.Controls.Add(this.pictureBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormElegirColor";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "FormElegirColor";
+            this.Text = "Elige el color";
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button BotonRojo;
-        private System.Windows.Forms.Button BotonAzul;
-        private System.Windows.Forms.Button BotonVerde;
-        private System.Windows.Forms.Button BotonAmarillo;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.PictureBox pictureBox3;
+        private System.Windows.Forms.PictureBox pictureBox4;
     }
 }

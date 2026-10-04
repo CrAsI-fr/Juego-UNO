@@ -21,30 +21,30 @@ namespace Juego_UNO
         {
             return this.colorSeleccionado;
         }
-        private void button3_Click(object sender, EventArgs e)
+        private void pictureBox3_Click(object sender, EventArgs e)
         {
             colorSeleccionado = "verde";
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
-        private void BotonRojo_Click(object sender, EventArgs e)
+        private void pictureBox4_Click(object sender, EventArgs e)
         {
-            colorSeleccionado = "rojo";
+            colorSeleccionado = "amarillo";
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
-        private void BotonAzul_Click(object sender, EventArgs e)
+        private void pictureBox2_Click(object sender, EventArgs e)
         {
             colorSeleccionado = "azul";
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
-        private void BotonAmarillo_Click(object sender, EventArgs e)
+        private void pictureBox1_Click(object sender, EventArgs e)
         {
-            colorSeleccionado = "amarillo";
+            colorSeleccionado = "rojo";
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

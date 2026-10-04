@@ -97,5 +97,17 @@ namespace Juego_UNO
             Nombres = nombres;
             DialogResult = DialogResult.OK;
         }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // FormNombres
+            // 
+            this.ClientSize = new System.Drawing.Size(1196, 757);
+            this.Name = "FormNombres";
+            this.ResumeLayout(false);
+
+        }
     }
 }

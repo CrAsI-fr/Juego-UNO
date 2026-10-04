@@ -50,10 +50,10 @@
             // pictureBox4
             // 
             this.pictureBox4.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox4.Location = new System.Drawing.Point(714, 296);
-            this.pictureBox4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.pictureBox4.Location = new System.Drawing.Point(1071, 462);
+            this.pictureBox4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(143, 139);
+            this.pictureBox4.Size = new System.Drawing.Size(214, 217);
             this.pictureBox4.TabIndex = 6;
             this.pictureBox4.TabStop = false;
             this.pictureBox4.Click += new System.EventHandler(this.pictureBox4_Click);
@@ -63,9 +63,10 @@
             this.lblJugador1.AutoSize = true;
             this.lblJugador1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblJugador1.ForeColor = System.Drawing.Color.White;
-            this.lblJugador1.Location = new System.Drawing.Point(609, 516);
+            this.lblJugador1.Location = new System.Drawing.Point(914, 806);
+            this.lblJugador1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblJugador1.Name = "lblJugador1";
-            this.lblJugador1.Size = new System.Drawing.Size(63, 13);
+            this.lblJugador1.Size = new System.Drawing.Size(117, 25);
             this.lblJugador1.TabIndex = 18;
             this.lblJugador1.Text = "Jugador 1";
             // 
@@ -74,9 +75,10 @@
             this.lblJugador2.AutoSize = true;
             this.lblJugador2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblJugador2.ForeColor = System.Drawing.Color.White;
-            this.lblJugador2.Location = new System.Drawing.Point(949, 264);
+            this.lblJugador2.Location = new System.Drawing.Point(1424, 412);
+            this.lblJugador2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblJugador2.Name = "lblJugador2";
-            this.lblJugador2.Size = new System.Drawing.Size(63, 13);
+            this.lblJugador2.Size = new System.Drawing.Size(117, 25);
             this.lblJugador2.TabIndex = 19;
             this.lblJugador2.Text = "Jugador 2";
             // 
@@ -85,9 +87,10 @@
             this.lblJugador3.AutoSize = true;
             this.lblJugador3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblJugador3.ForeColor = System.Drawing.Color.White;
-            this.lblJugador3.Location = new System.Drawing.Point(711, 29);
+            this.lblJugador3.Location = new System.Drawing.Point(1066, 45);
+            this.lblJugador3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblJugador3.Name = "lblJugador3";
-            this.lblJugador3.Size = new System.Drawing.Size(63, 13);
+            this.lblJugador3.Size = new System.Drawing.Size(117, 25);
             this.lblJugador3.TabIndex = 20;
             this.lblJugador3.Text = "Jugador 3";
             // 
@@ -96,19 +99,20 @@
             this.lblJugador4.AutoSize = true;
             this.lblJugador4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblJugador4.ForeColor = System.Drawing.Color.White;
-            this.lblJugador4.Location = new System.Drawing.Point(322, 264);
+            this.lblJugador4.Location = new System.Drawing.Point(483, 412);
+            this.lblJugador4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblJugador4.Name = "lblJugador4";
-            this.lblJugador4.Size = new System.Drawing.Size(63, 13);
+            this.lblJugador4.Size = new System.Drawing.Size(117, 25);
             this.lblJugador4.TabIndex = 21;
             this.lblJugador4.Text = "Jugador 4";
             // 
             // button9
             // 
             this.button9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button9.Location = new System.Drawing.Point(1328, 29);
-            this.button9.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.button9.Location = new System.Drawing.Point(1992, 45);
+            this.button9.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(124, 31);
+            this.button9.Size = new System.Drawing.Size(186, 48);
             this.button9.TabIndex = 18;
             this.button9.Text = "Empezar juego";
             this.button9.UseVisualStyleBackColor = true;
@@ -116,10 +120,10 @@
             // 
             // botonPasar
             // 
-            this.botonPasar.Location = new System.Drawing.Point(832, 228);
-            this.botonPasar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.botonPasar.Location = new System.Drawing.Point(1248, 356);
+            this.botonPasar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.botonPasar.Name = "botonPasar";
-            this.botonPasar.Size = new System.Drawing.Size(89, 28);
+            this.botonPasar.Size = new System.Drawing.Size(134, 44);
             this.botonPasar.TabIndex = 23;
             this.botonPasar.Text = "Pasar";
             this.botonPasar.UseVisualStyleBackColor = true;
@@ -128,19 +132,21 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(764, 437);
+            this.label1.Location = new System.Drawing.Point(1146, 683);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(44, 16);
+            this.label1.Size = new System.Drawing.Size(70, 25);
             this.label1.TabIndex = 22;
             this.label1.Text = "label1";
             // 
             // pictureBox6
             // 
             this.pictureBox6.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox6.Location = new System.Drawing.Point(561, 296);
-            this.pictureBox6.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBox6.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox6.Image")));
+            this.pictureBox6.Location = new System.Drawing.Point(842, 459);
             this.pictureBox6.Name = "pictureBox6";
-            this.pictureBox6.Size = new System.Drawing.Size(148, 139);
+            this.pictureBox6.Size = new System.Drawing.Size(222, 223);
+            this.pictureBox6.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox6.TabIndex = 24;
             this.pictureBox6.TabStop = false;
             // 
@@ -148,9 +154,10 @@
             // 
             this.flowMano1.AutoScroll = true;
             this.flowMano1.BackColor = System.Drawing.Color.Transparent;
-            this.flowMano1.Location = new System.Drawing.Point(381, 532);
+            this.flowMano1.Location = new System.Drawing.Point(572, 831);
+            this.flowMano1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.flowMano1.Name = "flowMano1";
-            this.flowMano1.Size = new System.Drawing.Size(857, 172);
+            this.flowMano1.Size = new System.Drawing.Size(1286, 269);
             this.flowMano1.TabIndex = 25;
             // 
             // flowMano4
@@ -158,18 +165,20 @@
             this.flowMano4.AutoScroll = true;
             this.flowMano4.BackColor = System.Drawing.Color.Transparent;
             this.flowMano4.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowMano4.Location = new System.Drawing.Point(12, 296);
+            this.flowMano4.Location = new System.Drawing.Point(18, 462);
+            this.flowMano4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.flowMano4.Name = "flowMano4";
-            this.flowMano4.Size = new System.Drawing.Size(544, 172);
+            this.flowMano4.Size = new System.Drawing.Size(816, 269);
             this.flowMano4.TabIndex = 26;
             // 
             // flowMano3
             // 
             this.flowMano3.AutoScroll = true;
             this.flowMano3.BackColor = System.Drawing.Color.Transparent;
-            this.flowMano3.Location = new System.Drawing.Point(325, 45);
+            this.flowMano3.Location = new System.Drawing.Point(488, 70);
+            this.flowMano3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.flowMano3.Name = "flowMano3";
-            this.flowMano3.Size = new System.Drawing.Size(927, 178);
+            this.flowMano3.Size = new System.Drawing.Size(1390, 278);
             this.flowMano3.TabIndex = 27;
             // 
             // flowMano2
@@ -177,19 +186,20 @@
             this.flowMano2.AutoScroll = true;
             this.flowMano2.BackColor = System.Drawing.Color.Transparent;
             this.flowMano2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowMano2.Location = new System.Drawing.Point(872, 296);
+            this.flowMano2.Location = new System.Drawing.Point(1308, 462);
+            this.flowMano2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.flowMano2.Name = "flowMano2";
-            this.flowMano2.Size = new System.Drawing.Size(580, 172);
+            this.flowMano2.Size = new System.Drawing.Size(870, 269);
             this.flowMano2.TabIndex = 26;
             // 
             // Ventana
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(1528, 805);
+            this.ClientSize = new System.Drawing.Size(2292, 1258);
             this.Controls.Add(this.flowMano2);
             this.Controls.Add(this.flowMano3);
             this.Controls.Add(this.flowMano4);
@@ -205,7 +215,7 @@
             this.Controls.Add(this.pictureBox4);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MaximizeBox = false;
             this.Name = "Ventana";
             this.Text = "UNO";

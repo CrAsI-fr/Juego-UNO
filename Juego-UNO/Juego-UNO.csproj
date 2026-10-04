@@ -109,6 +109,9 @@
     <EmbeddedResource Include="FormElegirColor.resx">
       <DependentUpon>FormElegirColor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FormNombres.resx">
+      <DependentUpon>FormNombres.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

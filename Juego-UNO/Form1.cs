@@ -69,8 +69,8 @@ namespace Juego_UNO
             manosJugadores = new[] { flowMano1, flowMano2, flowMano3, flowMano4 };
 
             AplicarEstilo();
-            //pictureBoxMazo.Click += (s, e) => RobarCarta(); SOLO creas la funcion RbarCarta() sin parametros, aproveha DarCartas()
-            //pictureBoxMazo.Cursor = Cursors.Hand;
+            pictureBoxMazo.Click += (s, e) => RobarCarta(turno);
+            pictureBoxMazo.Cursor = Cursors.Hand;
 
             ActualizarTurno();
             Load += (s, e) => AcomodarLayout();
@@ -109,7 +109,6 @@ namespace Juego_UNO
                 pb.SizeMode = PictureBoxSizeMode.Zoom;
                 pb.BackColor = Color.Transparent;
             }
-            pictureBoxMazo.Image = ObtenerReverso();
 
             // label1 indica el color en juego (importa sobre todo despues de un comodin)
             label1.Text = "";
@@ -254,29 +253,6 @@ namespace Juego_UNO
             MostrarDescarte();
             ActualizarTurno();
         }
-
-        /* ============================================================
-        * PENDIENTE: RobarCarta.
-        * ============================================================
-        private void RobarCarta(int posicion)
-        {
-            if (DarCartas(posicion, 1) == 0)
-                return;
-
-            var combo = combosMano[posicion];
-            combo.SelectedIndex = combo.Items.Count - 1;
-
-            ActualizarTurno();
-        }
-
-        private void MostrarCartaSeleccionada(int posicion)
-        {
-            if (combosMano[posicion].SelectedItem is Carta carta)
-                MostrarCartaEnPictureBox(picturesMano[posicion], carta);
-            else
-                picturesMano[posicion].Image = null;
-        }
-        * ============================================================ */
 
         /// <summary>
         /// El jugador en turno pasa sin tirar. Solo se permite cuando el mazo esta vacio,
@@ -671,57 +647,6 @@ namespace Juego_UNO
                 return new Bitmap(original);
         }
 
-        /// <summary>
-        /// Reverso de carta para el mazo del centro. Si agregan Cartas\reverso.png se usa esa
-        /// imagen; si no, se dibuja uno sencillo.
-        /// </summary>
-        private Image ObtenerReverso()
-        {
-            return CargarImagen("reverso.png") ?? DibujarReverso();
-        }
-
-        private static Image DibujarReverso()
-        {
-            var bmp = new Bitmap(200, 300);
-            using (var g = Graphics.FromImage(bmp))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-
-                // Carta negra con borde blanco y esquinas redondeadas
-                using (var borde = RectanguloRedondeado(new Rectangle(2, 2, 195, 295), 22))
-                using (var interior = RectanguloRedondeado(new Rectangle(14, 14, 171, 271), 14))
-                {
-                    g.FillPath(Brushes.White, borde);
-                    g.FillPath(Brushes.Black, interior);
-                }
-
-                // Ovalo rojo inclinado con "UNO" en amarillo, como el reverso original
-                g.TranslateTransform(100, 150);
-                g.RotateTransform(-30);
-                g.FillEllipse(Brushes.Red, -70, -110, 140, 220);
-                using (var fuente = new Font("Segoe UI", 40, FontStyle.Bold | FontStyle.Italic))
-                using (var formato = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                {
-                    g.DrawString("UNO", fuente, Brushes.Black, 3, 3, formato);   // sombra
-                    g.DrawString("UNO", fuente, Brushes.Gold, 0, 0, formato);
-                }
-            }
-            return bmp;
-        }
-
-        private static GraphicsPath RectanguloRedondeado(Rectangle r, int radio)
-        {
-            int d = radio * 2;
-            var path = new GraphicsPath();
-            path.AddArc(r.X, r.Y, d, d, 180, 90);
-            path.AddArc(r.Right - d, r.Y, d, d, 270, 90);
-            path.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
-            path.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
-
         private void MostrarCartaEnPictureBox(PictureBox pb, Carta carta, string colorMostrar = null)
         {
             // No se hace Dispose de la imagen anterior: esta guardada para reutilizarse
@@ -872,5 +797,14 @@ namespace Juego_UNO
                 .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .SetValue(control, true, null);
         }
+        
+        private void RobarCarta(int posicion)
+        {
+            if (DarCartas(posicion, 1) == 0)
+                return;
+
+            ActualizarTurno();
+        }
+        
     }
 }
