@@ -16,6 +16,11 @@ namespace Juego_UNO
         public FormElegirColor()
         {
             InitializeComponent();
+
+            // La ventana se ajusta a las 4 cartas; con el tamaño fijo del diseñador
+            // la amarilla quedaba cortada en pantallas con otra escala (DPI)
+            AutoSize = true;
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
         }
         public string getColor()
         {
