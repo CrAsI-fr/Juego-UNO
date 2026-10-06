@@ -14,7 +14,7 @@ namespace Juego_UNO
 {
     public partial class Ventana : Form
     {
-        private const int NumJugadores = 4;
+        public const int NumJugadores = 4;
         private const int CartasPorJugador = 7;
 
         // Tamaño de las cartas en la mano (en los lados se muestran giradas)
@@ -28,15 +28,15 @@ namespace Juego_UNO
         private static readonly Random aleatorio = new Random();
 
         // Ordenados por su posicion en la mesa (partida_jugador.posicion)
-        private List<Jugador> jugadores = new List<Jugador>();
-        private List<Carta> mazo = new List<Carta>();
+        public List<Jugador> jugadores = new List<Jugador>();
+        public List<Carta> mazo = new List<Carta>();
         // Carta boca arriba (pictureBox4). Al jugarse otra encima, esta regresa al mazo.
-        private Carta cartaArriba;
+        public Carta cartaArriba;
         // Color que vale ahora: el de cartaArriba, o el elegido si es un comodin.
         // Se guarda aparte para no modificar la carta (los comodines no tienen color propio).
-        private string colorActual;
-        private int idPartida;
-        private bool partidaEnCurso;
+        public string colorActual;
+        public int idPartida;
+        public bool partidaEnCurso;
 
         // Indice (en jugadores) de quien tiene el turno, y sentido del juego:
         // 1 = posiciones ascendentes (1, 2, 3, 4), -1 = descendentes (4, 3, 2, 1)
@@ -149,7 +149,7 @@ namespace Juego_UNO
         }
 
         // Empezar juego
-        private void button9_Click(object sender, EventArgs e)
+        public void button9_Click(object sender, EventArgs e)
         {
             // Se sugieren los nombres de la partida anterior, si la hubo
             List<string> nombres;
@@ -405,7 +405,7 @@ namespace Juego_UNO
         /// <summary>
         /// Mezcla la lista al azar (algoritmo Fisher-Yates).
         /// </summary>
-        private static void Barajar(List<Carta> cartas)
+        public static void Barajar(List<Carta> cartas)
         {
             for (int i = cartas.Count - 1; i > 0; i--)
             {
@@ -420,7 +420,7 @@ namespace Juego_UNO
         /// Reparte una carta a cada jugador por vuelta, tomandolas del tope del mazo.
         /// Las cartas que sobran se quedan en el mazo para robar.
         /// </summary>
-        private void Repartir()
+        public void Repartir()
         {
             for (int vuelta = 0; vuelta < CartasPorJugador; vuelta++)
             {
@@ -438,7 +438,7 @@ namespace Juego_UNO
         /// se regresa al mazo y se voltea otra. Siempre quedan ordinarias en el mazo
         /// despues de repartir (hay 36 ordinarias y solo 24 especiales).
         /// </summary>
-        private Carta SacarCartaInicial()
+        public Carta SacarCartaInicial()
         {
             var carta = mazo[0];
             while (carta.Tipo != "ordinaria")
@@ -459,7 +459,7 @@ namespace Juego_UNO
             mazo.Insert(aleatorio.Next(mazo.Count + 1), carta);
         }
 
-        private void MostrarManos()
+        public void MostrarManos()
         {
             for (int i = 0; i < jugadores.Count; i++)
                 MostrarMano(i);
@@ -513,7 +513,7 @@ namespace Juego_UNO
         /// <summary>
         /// Muestra la carta de arriba en el centro, y en label1 el color que esta en juego.
         /// </summary>
-        private void MostrarDescarte()
+        public void MostrarDescarte()
         {
             MostrarCartaEnPictureBox(pictureBoxDescarte, cartaArriba, colorActual);
 
@@ -535,7 +535,7 @@ namespace Juego_UNO
         /// Solo sus cartas muestran la mano para jugar.
         /// "Pasar" solo se activa cuando ya no quedan cartas en el mazo.
         /// </summary>
-        private void ActualizarTurno()
+        public void ActualizarTurno()
         {
             for (int i = 0; i < NumJugadores; i++)
             {
