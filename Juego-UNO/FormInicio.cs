@@ -20,8 +20,9 @@ namespace Juego_UNO
         private void button1_Click(object sender, EventArgs e)
         {
             Ventana ventanaJuego = new Ventana();
-            this.SuspendLayout();
+            ventanaJuego.button9_Click(sender, e);
             ventanaJuego.ShowDialog();
+            this.SuspendLayout();
             this.Close();
         }
     }
