@@ -97,6 +97,12 @@
     <Compile Include="FormElegirColor.Designer.cs">
       <DependentUpon>FormElegirColor.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormInicio.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormInicio.Designer.cs">
+      <DependentUpon>FormInicio.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormNombres.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,6 +114,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormElegirColor.resx">
       <DependentUpon>FormElegirColor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormInicio.resx">
+      <DependentUpon>FormInicio.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormNombres.resx">
       <DependentUpon>FormNombres.cs</DependentUpon>
