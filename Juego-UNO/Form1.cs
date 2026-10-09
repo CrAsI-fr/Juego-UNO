@@ -14,7 +14,7 @@ namespace Juego_UNO
 {
     public partial class Ventana : Form
     {
-        public const int NumJugadores = 4;
+        private const int NumJugadores = 4;
         private const int CartasPorJugador = 7;
 
         // Tamaño de las cartas en la mano (en los lados se muestran giradas)
@@ -28,20 +28,32 @@ namespace Juego_UNO
         private static readonly Random aleatorio = new Random();
 
         // Ordenados por su posicion en la mesa (partida_jugador.posicion)
-        public List<Jugador> jugadores = new List<Jugador>();
-        public List<Carta> mazo = new List<Carta>();
+        private List<Jugador> jugadores = new List<Jugador>();
+        private List<Carta> mazo = new List<Carta>();
         // Carta boca arriba (pictureBox4). Al jugarse otra encima, esta regresa al mazo.
-        public Carta cartaArriba;
+        private Carta cartaArriba;
         // Color que vale ahora: el de cartaArriba, o el elegido si es un comodin.
         // Se guarda aparte para no modificar la carta (los comodines no tienen color propio).
-        public string colorActual;
-        public int idPartida;
-        public bool partidaEnCurso;
+        private string colorActual;
+        private int idPartida;
+        private bool partidaEnCurso;
 
         // Indice (en jugadores) de quien tiene el turno, y sentido del juego:
         // 1 = posiciones ascendentes (1, 2, 3, 4), -1 = descendentes (4, 3, 2, 1)
         private int turno;
         private int direccion = 1;
+        // Si el jugador en turno ya robo del mazo en este turno. Se puede seguir robando,
+        // pero desde el primer robo ya se permite pasar (regla oficial).
+        private bool yaRobo;
+
+        // "Decir UNO": al tirar la penultima carta, el jugador tiene unos segundos para
+        // presionar el boton; si no lo hace, roba 2 cartas de castigo.
+        private const int SegundosParaUno = 4;
+        private Button botonUno;
+        private readonly System.Windows.Forms.Timer temporizadorUno = new System.Windows.Forms.Timer { Interval = 1000 };
+        private int segundosRestantesUno;
+        // Posicion del jugador que debe decir UNO (-1 = nadie). Mientras corre el tiempo, el juego se pausa.
+        private int jugadorEnUno = -1;
 
         // Controles de cada jugador, en orden de posicion:
         // 1 abajo, 2 derecha, 3 arriba, 4 izquierda
@@ -71,6 +83,7 @@ namespace Juego_UNO
             AplicarEstilo();
             pictureBoxMazo.Click += (s, e) => RobarCarta(turno);
             pictureBoxMazo.Cursor = Cursors.Hand;
+            temporizadorUno.Tick += (s, e) => AvanzarCuentaUno();
 
             ActualizarTurno();
             Load += (s, e) => AcomodarLayout();
@@ -127,6 +140,26 @@ namespace Juego_UNO
                 boton.AutoSize = true;
                 boton.Padding = new Padding(8, 2, 8, 2);
             }
+
+            // Boton "¡UNO!": amarillo con borde negro, como el logo. Solo aparece durante la cuenta.
+            botonUno = new Button
+            {
+                Text = "¡UNO!",
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.Gold,
+                ForeColor = Color.Black,
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                AutoSize = true,
+                Padding = new Padding(14, 4, 14, 4),
+                Cursor = Cursors.Hand,
+                Visible = false
+            };
+            botonUno.FlatAppearance.BorderColor = Color.Black;
+            botonUno.FlatAppearance.BorderSize = 3;
+            botonUno.FlatAppearance.MouseOverBackColor = Color.Yellow;
+            botonUno.Click += (s, e) => DecirUno();
+            Controls.Add(botonUno);
+            botonUno.BringToFront();
         }
 
         /// <summary>
@@ -149,14 +182,24 @@ namespace Juego_UNO
         }
 
         // Empezar juego
-        public void button9_Click(object sender, EventArgs e)
+        private void button9_Click(object sender, EventArgs e)
+        {
+            EmpezarPartida();
+        }
+
+        /// <summary>
+        /// Pide los nombres, reparte y registra la partida en la base de datos.
+        /// Devuelve false si se cancelo la ventana de nombres o fallo la API.
+        /// La usa el boton "Empezar juego" y tambien la pantalla de inicio (FormInicio).
+        /// </summary>
+        public bool EmpezarPartida()
         {
             // Se sugieren los nombres de la partida anterior, si la hubo
             List<string> nombres;
             using (var dialogo = new FormNombres(NumJugadores, jugadores.Select(j => j.Nombre).ToList()))
             {
                 if (dialogo.ShowDialog(this) != DialogResult.OK)
-                    return;
+                    return false;
                 nombres = dialogo.Nombres;
             }
 
@@ -190,21 +233,24 @@ namespace Juego_UNO
             catch (ErrorBaseDatos ex)
             {
                 MostrarErrorBaseDatos(ex);
-                return;
+                return false;
             }
 
             // La carta inicial siempre es de numero: empieza la posicion 1 en sentido 1→2→3→4
             direccion = 1;
             turno = 0;
+            yaRobo = false;
+            DetenerCuentaUno();
             MostrarManos();
             MostrarDescarte();
             ActualizarTurno();
+            return true;
         }
 
         private void JugarCarta(int posicion, Carta carta)
         {
-            // Solo puede jugar quien tiene el turno
-            if (posicion != turno || !partidaEnCurso)
+            // Solo puede jugar quien tiene el turno, y no mientras alguien debe decir UNO
+            if (posicion != turno || !partidaEnCurso || jugadorEnUno >= 0)
                 return;
 
             var jugador = jugadores[posicion];
@@ -248,18 +294,30 @@ namespace Juego_UNO
                 TerminarConGanador(jugador);
             else
                 AplicarEfecto(carta);
+            yaRobo = false;   // el turno paso al siguiente jugador
             cartaArriba = carta;
             colorActual = colorElegido ?? carta.Color;
             MostrarDescarte();
             ActualizarTurno();
+
+            // Tiro su penultima carta: tiene unos segundos para decir UNO
+            if (partidaEnCurso && jugador.Mano.Count == 1)
+                IniciarCuentaUno(posicion);
+
+            // Se quedo sin cartas y la partida quedo registrada: anuncio y de vuelta al inicio
+            if (jugador.Mano.Count == 0 && !partidaEnCurso)
+                AnunciarGanador(jugador);
         }
 
         /// <summary>
-        /// El jugador en turno pasa sin tirar. Solo se permite cuando el mazo esta vacio,
-        /// para que un jugador sin cartas validas no se quede atorado.
+        /// El jugador en turno pasa sin tirar. Segun las reglas oficiales solo se puede
+        /// despues de robar; tambien se permite con el mazo vacio para no quedarse atorado.
         /// </summary>
         private void botonPasar_Click(object sender, EventArgs e)
         {
+            if (!partidaEnCurso || jugadorEnUno >= 0)
+                return;
+
             try
             {
                 BaseDatos.RegistrarJugada(idPartida, jugadores[turno].Id, "pasar", null);
@@ -270,6 +328,7 @@ namespace Juego_UNO
                 return;
             }
 
+            yaRobo = false;
             turno = Siguiente(turno);
             ActualizarTurno();
         }
@@ -331,9 +390,10 @@ namespace Juego_UNO
 
         /// <summary>
         /// Da 'cantidad' cartas del mazo al jugador y las registra en el log.
+        /// 'accion' es "robar" o "penalizacion_uno" (castigo por no decir UNO).
         /// Devuelve cuantas se pudieron dar.
         /// </summary>
-        private int DarCartas(int posicion, int cantidad)
+        private int DarCartas(int posicion, int cantidad, string accion = "robar")
         {
             var jugador = jugadores[posicion];
             int dadas = 0;
@@ -350,7 +410,7 @@ namespace Juego_UNO
                 var carta = mazo[0];
                 try
                 {
-                    BaseDatos.RegistrarJugada(idPartida, jugador.Id, "robar", carta.Id);
+                    BaseDatos.RegistrarJugada(idPartida, jugador.Id, accion, carta.Id);
                 }
                 catch (ErrorBaseDatos ex)
                 {
@@ -382,13 +442,23 @@ namespace Juego_UNO
 
             partidaEnCurso = false;
             ActualizarTurno();
-            MessageBox.Show($"¡{ganador.Nombre} ganó la partida!", "UNO",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Muestra el anuncio del ganador; al aceptar se cierra la mesa y se regresa
+        /// a la pantalla de inicio (FormInicio vuelve a aparecer al cerrar el juego).
+        /// </summary>
+        private void AnunciarGanador(Jugador ganador)
+        {
+            using (var anuncio = new FormGanador(ganador.Nombre, idPartida))
+                anuncio.ShowDialog(this);
+            Close();
         }
 
         // Al cerrar el programa, la partida en curso queda terminada sin ganador
         private void Ventana_FormClosing(object sender, FormClosingEventArgs e)
         {
+            DetenerCuentaUno();
             if (!partidaEnCurso)
                 return;
 
@@ -405,7 +475,7 @@ namespace Juego_UNO
         /// <summary>
         /// Mezcla la lista al azar (algoritmo Fisher-Yates).
         /// </summary>
-        public static void Barajar(List<Carta> cartas)
+        private static void Barajar(List<Carta> cartas)
         {
             for (int i = cartas.Count - 1; i > 0; i--)
             {
@@ -420,7 +490,7 @@ namespace Juego_UNO
         /// Reparte una carta a cada jugador por vuelta, tomandolas del tope del mazo.
         /// Las cartas que sobran se quedan en el mazo para robar.
         /// </summary>
-        public void Repartir()
+        private void Repartir()
         {
             for (int vuelta = 0; vuelta < CartasPorJugador; vuelta++)
             {
@@ -438,7 +508,7 @@ namespace Juego_UNO
         /// se regresa al mazo y se voltea otra. Siempre quedan ordinarias en el mazo
         /// despues de repartir (hay 36 ordinarias y solo 24 especiales).
         /// </summary>
-        public Carta SacarCartaInicial()
+        private Carta SacarCartaInicial()
         {
             var carta = mazo[0];
             while (carta.Tipo != "ordinaria")
@@ -459,7 +529,7 @@ namespace Juego_UNO
             mazo.Insert(aleatorio.Next(mazo.Count + 1), carta);
         }
 
-        public void MostrarManos()
+        private void MostrarManos()
         {
             for (int i = 0; i < jugadores.Count; i++)
                 MostrarMano(i);
@@ -505,15 +575,25 @@ namespace Juego_UNO
 
             contenedor.ResumeLayout();
 
+            ActualizarEtiqueta(posicion);
+        }
+
+        /// <summary>
+        /// Nombre del jugador, cuantas cartas tiene y "¡UNO!" si ya lo dijo con su ultima carta.
+        /// </summary>
+        private void ActualizarEtiqueta(int posicion)
+        {
             int cantidad = jugadores[posicion].Mano.Count;
-            etiquetasNombre[posicion].Text = $"{jugadores[posicion].Nombre}  ·  {cantidad} {(cantidad == 1 ? "carta" : "cartas")}";
+            string uno = cantidad == 1 && jugadorEnUno != posicion ? "  ·  ¡UNO!" : "";
+            etiquetasNombre[posicion].Text =
+                $"{jugadores[posicion].Nombre}  ·  {cantidad} {(cantidad == 1 ? "carta" : "cartas")}{uno}";
             AjustarMano(posicion);
         }
 
         /// <summary>
         /// Muestra la carta de arriba en el centro, y en label1 el color que esta en juego.
         /// </summary>
-        public void MostrarDescarte()
+        private void MostrarDescarte()
         {
             MostrarCartaEnPictureBox(pictureBoxDescarte, cartaArriba, colorActual);
 
@@ -533,9 +613,9 @@ namespace Juego_UNO
         /// <summary>
         /// Resalta al jugador en turno con el circulo amarillo y su nombre en amarillo.
         /// Solo sus cartas muestran la mano para jugar.
-        /// "Pasar" solo se activa cuando ya no quedan cartas en el mazo.
+        /// "Pasar" se activa despues de robar (o si el mazo esta vacio).
         /// </summary>
-        public void ActualizarTurno()
+        private void ActualizarTurno()
         {
             for (int i = 0; i < NumJugadores; i++)
             {
@@ -559,7 +639,7 @@ namespace Juego_UNO
             }
 
             // Solo se muestra cuando se puede usar, para no estorbar junto al mazo
-            botonPasar.Enabled = partidaEnCurso && mazo.Count == 0;
+            botonPasar.Enabled = partidaEnCurso && jugadorEnUno < 0 && (yaRobo || mazo.Count == 0);
             botonPasar.Visible = botonPasar.Enabled;
 
             ActualizarTitulo();
@@ -737,6 +817,7 @@ namespace Juego_UNO
             pictureBoxDescarte.Location = new Point(cx + 15, cy - TamañoCentro.Height / 2);
             CentrarDebajo(label1, pictureBoxDescarte);
             CentrarDebajo(botonPasar, pictureBoxMazo);
+            AcomodarBotonUno();
 
             ActualizarTurno();
         }
@@ -800,15 +881,108 @@ namespace Juego_UNO
         
         private void RobarCarta(int posicion)
         {
-            // Sin partida en curso no hay jugadores (antes de empezar) o la partida ya termino
-            if (!partidaEnCurso)
+            // Sin partida en curso no hay jugadores (antes de empezar) o la partida ya termino.
+            // Tampoco se roba mientras alguien debe decir UNO.
+            if (!partidaEnCurso || jugadorEnUno >= 0)
                 return;
 
             if (DarCartas(posicion, 1) == 0)
                 return;
 
+            // Puede seguir robando las veces que quiera, pero ya puede pasar
+            yaRobo = true;
+
+            // Si la mano tiene scroll, se muestra la carta recien robada (queda al final)
+            var panel = manosJugadores[posicion];
+            panel.ScrollControlIntoView(panel.Controls[panel.Controls.Count - 1]);
+
             ActualizarTurno();
         }
-        
+
+        // ============================================================
+        // Decir UNO
+        // ============================================================
+
+        /// <summary>
+        /// Empieza la cuenta regresiva para que el jugador diga UNO. Mientras corre,
+        /// nadie puede tirar, robar ni pasar.
+        /// </summary>
+        private void IniciarCuentaUno(int posicion)
+        {
+            jugadorEnUno = posicion;
+            segundosRestantesUno = SegundosParaUno;
+            ActualizarTextoUno();
+            botonUno.Visible = true;
+            ActualizarEtiqueta(posicion);
+            ActualizarTurno();
+            temporizadorUno.Start();
+        }
+
+        private void AvanzarCuentaUno()
+        {
+            segundosRestantesUno--;
+            if (segundosRestantesUno > 0)
+            {
+                ActualizarTextoUno();
+                return;
+            }
+
+            // Se acabo el tiempo: castigo de 2 cartas
+            int posicion = jugadorEnUno;
+            DetenerCuentaUno();
+            MessageBox.Show($"{jugadores[posicion].Nombre} no dijo UNO a tiempo. Roba 2 cartas de castigo.",
+                "UNO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            DarCartas(posicion, 2, "penalizacion_uno");
+            ActualizarTurno();
+        }
+
+        /// <summary>
+        /// Clic en "¡UNO!" a tiempo: se registra en la base y no hay castigo.
+        /// </summary>
+        private void DecirUno()
+        {
+            if (jugadorEnUno < 0)
+                return;
+
+            int posicion = jugadorEnUno;
+            DetenerCuentaUno();
+            try
+            {
+                BaseDatos.RegistrarJugada(idPartida, jugadores[posicion].Id, "decir_uno", null);
+            }
+            catch (ErrorBaseDatos ex)
+            {
+                MostrarErrorBaseDatos(ex);
+            }
+
+            ActualizarEtiqueta(posicion);   // ahora muestra "¡UNO!"
+            ActualizarTurno();
+        }
+
+        /// <summary>
+        /// Detiene la cuenta sin castigo (al decir UNO, empezar otra partida o cerrar).
+        /// </summary>
+        private void DetenerCuentaUno()
+        {
+            temporizadorUno.Stop();
+            jugadorEnUno = -1;
+            botonUno.Visible = false;
+        }
+
+        private void ActualizarTextoUno()
+        {
+            botonUno.Text = $"¡UNO!  {jugadores[jugadorEnUno].Nombre}  ·  {segundosRestantesUno}";
+            AcomodarBotonUno();
+        }
+
+        /// <summary>
+        /// El boton va a la derecha de la carta del centro, a la misma altura.
+        /// </summary>
+        private void AcomodarBotonUno()
+        {
+            botonUno.Location = new Point(
+                pictureBoxDescarte.Right + 25,
+                pictureBoxDescarte.Top + (pictureBoxDescarte.Height - botonUno.Height) / 2);
+        }
     }
 }
