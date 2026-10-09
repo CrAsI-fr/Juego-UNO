@@ -303,6 +303,10 @@ namespace Juego_UNO
             // Tiro su penultima carta: tiene unos segundos para decir UNO
             if (partidaEnCurso && jugador.Mano.Count == 1)
                 IniciarCuentaUno(posicion);
+
+            // Se quedo sin cartas y la partida quedo registrada: anuncio y de vuelta al inicio
+            if (jugador.Mano.Count == 0 && !partidaEnCurso)
+                AnunciarGanador(jugador);
         }
 
         /// <summary>
@@ -438,8 +442,17 @@ namespace Juego_UNO
 
             partidaEnCurso = false;
             ActualizarTurno();
-            MessageBox.Show($"¡{ganador.Nombre} ganó la partida!", "UNO",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Muestra el anuncio del ganador; al aceptar se cierra la mesa y se regresa
+        /// a la pantalla de inicio (FormInicio vuelve a aparecer al cerrar el juego).
+        /// </summary>
+        private void AnunciarGanador(Jugador ganador)
+        {
+            using (var anuncio = new FormGanador(ganador.Nombre, idPartida))
+                anuncio.ShowDialog(this);
+            Close();
         }
 
         // Al cerrar el programa, la partida en curso queda terminada sin ganador
