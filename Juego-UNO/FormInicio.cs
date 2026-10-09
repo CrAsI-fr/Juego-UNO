@@ -120,7 +120,7 @@ namespace Juego_UNO
 
                 if (apiDisponible)
                 {
-                    etiquetaEstado.Text = "● Conectado a la base de datos";
+                    etiquetaEstado.Text = "● Conectado";
                     etiquetaEstado.ForeColor = Color.LightGreen;
                 }
                 else
@@ -133,7 +133,7 @@ namespace Juego_UNO
                 AcomodarEstado();
 
                 // Espera 3 segundos ANTES de volver a iniciar el ciclo
-                await Task.Delay(3000);
+                await Task.Delay(2000);
             }
         }
 
