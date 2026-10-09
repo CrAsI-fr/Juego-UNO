@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Juego_UNO
@@ -18,7 +19,8 @@ namespace Juego_UNO
         private readonly BotonUno botonJugar;
         private readonly BotonUno botonSalir;
         private readonly Label etiquetaEstado;
-        private bool apiDisponible;
+        private bool apiDisponible = false;
+        private bool monitoreando = true;
 
         public FormInicio()
         {
@@ -49,10 +51,9 @@ namespace Juego_UNO
                 AutoSize = true,
                 BackColor = Color.FromArgb(160, 0, 0, 0),
                 Padding = new Padding(10, 5, 10, 5),
-                Cursor = Cursors.Hand
             };
             // Si la API estaba apagada, un clic en el mensaje vuelve a revisar
-            etiquetaEstado.Click += (s, e) => RevisarApi();
+            //etiquetaEstado.Click += (s, e) => RevisarApi();
 
             Controls.Add(botonJugar);
             Controls.Add(botonSalir);
@@ -107,36 +108,46 @@ namespace Juego_UNO
         /// <summary>
         /// Comprueba si la API de Python responde. Sin API no se puede jugar.
         /// </summary>
-        private void RevisarApi()
+        private async void FormInicio_Load(object sender, EventArgs e)
         {
-            Cursor = Cursors.WaitCursor;
-            apiDisponible = BaseDatos.ApiDisponible();
-            Cursor = Cursors.Default;
+            await RevisarApi();
+        }
+        private async Task RevisarApi()
+        {
+            while (monitoreando)
+            {
+                apiDisponible = await Task.Run(() => BaseDatos.ApiDisponible());
 
-            if (apiDisponible)
-            {
-                etiquetaEstado.Text = "● Conectado a la base de datos";
-                etiquetaEstado.ForeColor = Color.LightGreen;
+                if (apiDisponible)
+                {
+                    etiquetaEstado.Text = "● Conectado a la base de datos";
+                    etiquetaEstado.ForeColor = Color.LightGreen;
+                }
+                else
+                {
+                    etiquetaEstado.Text = "● Error de conexión";
+                    etiquetaEstado.ForeColor = Color.FromArgb(255, 160, 150);
+                }
+
+                botonJugar.Enabled = apiDisponible;
+                AcomodarEstado();
+
+                // Espera 3 segundos ANTES de volver a iniciar el ciclo
+                await Task.Delay(3000);
             }
-            else
-            {
-                etiquetaEstado.Text = "● La API no responde: ejecuta \"uvicorn main:app --reload\" y haz clic aquí para reintentar";
-                etiquetaEstado.ForeColor = Color.FromArgb(255, 160, 150);
-            }
-            botonJugar.Enabled = apiDisponible;
-            AcomodarEstado();
         }
 
         /// <summary>
         /// Oculta la pantalla de inicio y abre el juego. Si se cancela la ventana de nombres,
         /// se regresa aqui; al cerrar el juego tambien se regresa a esta pantalla.
         /// </summary>
-        private void Jugar()
+        private async Task Jugar()
         {
             if (!apiDisponible)
                 return;
-
+            monitoreando = false;
             Hide();
+   
             using (var juego = new Ventana())
             {
                 // La partida empieza cuando la mesa ya se ve y esta acomodada
@@ -148,8 +159,11 @@ namespace Juego_UNO
                 juego.ShowDialog();
             }
             Show();
-            RevisarApi();
+            monitoreando = true;
+            await RevisarApi();
         }
+
+        
     }
 
     /// <summary>
@@ -221,5 +235,7 @@ namespace Juego_UNO
             path.CloseFigure();
             return path;
         }
+
+
     }
 }
