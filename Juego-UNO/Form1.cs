@@ -241,7 +241,7 @@ namespace Juego_UNO
             return true;
         }
 
-        private void JugarCarta(int posicion, Carta carta)
+        private void JugarCarta(int posicion, Carta carta, PictureBox pic)
         {
             // Solo puede jugar quien tiene el turno, y no mientras alguien debe decir UNO
             if (posicion != turno || !partidaEnCurso || jugadorEnUno >= 0)
@@ -256,6 +256,8 @@ namespace Juego_UNO
 
             if (!esComodin && !coincideColor && !coincideNumero && !coincideEfecto)
             {
+                //aqui va el cambio de color por milisegundos
+                EfectoCartaInvalida(pic);
                 return;
             }
 
@@ -298,6 +300,47 @@ namespace Juego_UNO
             // Se quedo sin cartas y la partida quedo registrada: anuncio y de vuelta al inicio
             if (jugador.Mano.Count == 0 && !partidaEnCurso)
                 AnunciarGanador(jugador);
+        }
+
+        private async void EfectoCartaInvalida(PictureBox pic)
+        {
+            // Si la carta ya está bloqueada/animándose, ignoramos clics extra
+            if (!pic.Enabled) return;
+
+            // Desactivamos la carta temporalmente para evitar spam de clics
+            pic.Enabled = false;
+
+            // Creamos un evento "Paint" temporal. 
+            // Esto nos permite dibujar SOBRE la imagen de la carta.
+            PaintEventHandler filtroRojo = (sender, e) =>
+            {
+                // Color rojo con opacidad (120 de 255)
+                using (Brush brocha = new SolidBrush(Color.FromArgb(120, 255, 0, 0)))
+                {
+                    e.Graphics.FillRectangle(brocha, pic.ClientRectangle);
+                }
+            };
+
+            try
+            {
+                // Agregamos el filtro y forzamos a que el PictureBox se redibuje
+                pic.Paint += filtroRojo;
+                pic.Invalidate();
+
+                // Esperamos 350 milisegundos (puedes ajustar este tiempo)
+                await Task.Delay(350);
+
+                if (!pic.IsDisposed)
+                {
+                    pic.Paint -= filtroRojo;
+                    pic.Enabled = true;
+                    pic.Invalidate();
+                }
+            }
+            catch
+            {
+                // Se ignora silenciosamente si el usuario cerró el juego a mitad del parpadeo
+            }
         }
 
         /// <summary>
@@ -553,7 +596,7 @@ namespace Juego_UNO
                     BackColor = Color.Transparent,
                     Tag = carta
                 };
-                pic.DoubleClick += (s, e) => JugarCarta(posicion, carta);
+                pic.DoubleClick += (s, e) => JugarCarta(posicion, carta, pic);
                 pic.MouseEnter += (s, e) =>
                 {
                     if (partidaEnCurso && posicion == turno)
