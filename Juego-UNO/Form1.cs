@@ -259,6 +259,7 @@ namespace Juego_UNO
                 MessageBox.Show($"No puedes jugar {carta} sobre {cartaArriba}.\n" +
                     $"Debe ser color {colorActual}, el mismo número o símbolo, o un comodín.",
                     "Jugada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                   
                 return;
             }
 
@@ -338,7 +339,6 @@ namespace Juego_UNO
                     return null;
 
                 string nuevoColor = ventanaElegirColor.getColor();
-                MessageBox.Show("El nuevo color es: " + nuevoColor);
                 return nuevoColor;
             }
         }
@@ -591,7 +591,7 @@ namespace Juego_UNO
         {
             MostrarCartaEnPictureBox(pictureBoxDescarte, cartaArriba, colorActual);
 
-            label1.Text = "Color en juego: " + Capitalizar(colorActual);
+            label1.Text = "Color: " + Capitalizar(colorActual);
             switch (colorActual)
             {
                 case "rojo": label1.BackColor = Color.DarkRed; label1.ForeColor = Color.White; break;

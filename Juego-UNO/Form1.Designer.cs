@@ -35,7 +35,6 @@
             this.lblJugador2 = new System.Windows.Forms.Label();
             this.lblJugador3 = new System.Windows.Forms.Label();
             this.lblJugador4 = new System.Windows.Forms.Label();
-            this.button9 = new System.Windows.Forms.Button();
             this.botonPasar = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
@@ -198,7 +197,6 @@
             this.Controls.Add(this.pictureBox6);
             this.Controls.Add(this.botonPasar);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button9);
             this.Controls.Add(this.lblJugador4);
             this.Controls.Add(this.lblJugador3);
             this.Controls.Add(this.lblJugador2);
@@ -224,7 +222,6 @@
         private System.Windows.Forms.Label lblJugador2;
         private System.Windows.Forms.Label lblJugador3;
         private System.Windows.Forms.Label lblJugador4;
-        private System.Windows.Forms.Button button9;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button botonPasar;
         private System.Windows.Forms.PictureBox pictureBox6;
