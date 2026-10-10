@@ -256,10 +256,6 @@ namespace Juego_UNO
 
             if (!esComodin && !coincideColor && !coincideNumero && !coincideEfecto)
             {
-                MessageBox.Show($"No puedes jugar {carta} sobre {cartaArriba}.\n" +
-                    $"Debe ser color {colorActual}, el mismo número o símbolo, o un comodín.",
-                    "Jugada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                   
                 return;
             }
 
