@@ -129,18 +129,15 @@ namespace Juego_UNO
             label1.Font = new Font("Segoe UI", 11, FontStyle.Bold);
             label1.Padding = new Padding(10, 4, 10, 4);
 
-            foreach (var boton in new[] { button9, botonPasar })
-            {
-                boton.FlatStyle = FlatStyle.Flat;
-                boton.FlatAppearance.BorderColor = Color.White;
-                boton.BackColor = Color.FromArgb(200, 20, 20, 20);
-                boton.ForeColor = Color.White;
-                boton.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-                boton.Cursor = Cursors.Hand;
-                boton.AutoSize = true;
-                boton.Padding = new Padding(8, 2, 8, 2);
-            }
-
+            botonPasar.FlatStyle = FlatStyle.Flat;
+            botonPasar.FlatAppearance.BorderColor = Color.White;
+            botonPasar.BackColor = Color.FromArgb(200, 20, 20, 20);
+            botonPasar.ForeColor = Color.White;
+            botonPasar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            botonPasar.Cursor = Cursors.Hand;
+            botonPasar.AutoSize = true;
+            botonPasar.Padding = new Padding(8, 2, 8, 2);
+            
             // Boton "¡UNO!": amarillo con borde negro, como el logo. Solo aparece durante la cuenta.
             botonUno = new Button
             {
@@ -182,10 +179,7 @@ namespace Juego_UNO
         }
 
         // Empezar juego
-        private void button9_Click(object sender, EventArgs e)
-        {
-            EmpezarPartida();
-        }
+
 
         /// <summary>
         /// Pide los nombres, reparte y registra la partida en la base de datos.
@@ -786,7 +780,7 @@ namespace Juego_UNO
 
             const int margen = 20;
             // "Empezar juego" en la esquina superior derecha
-            button9.Location = new Point(w - button9.Width - margen, margen);
+
 
             int altoEtiqueta = lblJugador1.Height + 6;
             // Espacio de una fila (arriba/abajo) o columna (lados): carta + elevacion + scroll
@@ -802,7 +796,7 @@ namespace Juego_UNO
 
             // Lados: casi toda la altura, porque las filas de arriba y abajo no llegan a los costados.
             // Empiezan debajo del boton "Empezar juego" para que el nombre no se encime con el.
-            int yLado = Math.Max(yArriba, button9.Bottom + 10 + altoEtiqueta);
+            int yLado = yArriba;
             int altoLado = Math.Max(AnchoCarta, h - margen - yLado);
             areasMano[1] = new Rectangle(w - margen - grosorMano, yLado, grosorMano, altoLado);
             areasMano[3] = new Rectangle(margen, yLado, grosorMano, altoLado);
