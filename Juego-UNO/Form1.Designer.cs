@@ -35,7 +35,6 @@
             this.lblJugador2 = new System.Windows.Forms.Label();
             this.lblJugador3 = new System.Windows.Forms.Label();
             this.lblJugador4 = new System.Windows.Forms.Label();
-            this.button9 = new System.Windows.Forms.Button();
             this.botonPasar = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
@@ -108,15 +107,6 @@
             // 
             // button9
             // 
-            this.button9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button9.Location = new System.Drawing.Point(1992, 45);
-            this.button9.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(186, 48);
-            this.button9.TabIndex = 18;
-            this.button9.Text = "Empezar juego";
-            this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // botonPasar
             // 
@@ -207,7 +197,6 @@
             this.Controls.Add(this.pictureBox6);
             this.Controls.Add(this.botonPasar);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button9);
             this.Controls.Add(this.lblJugador4);
             this.Controls.Add(this.lblJugador3);
             this.Controls.Add(this.lblJugador2);
@@ -233,7 +222,6 @@
         private System.Windows.Forms.Label lblJugador2;
         private System.Windows.Forms.Label lblJugador3;
         private System.Windows.Forms.Label lblJugador4;
-        private System.Windows.Forms.Button button9;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button botonPasar;
         private System.Windows.Forms.PictureBox pictureBox6;

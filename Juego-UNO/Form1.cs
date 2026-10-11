@@ -129,18 +129,15 @@ namespace Juego_UNO
             label1.Font = new Font("Segoe UI", 11, FontStyle.Bold);
             label1.Padding = new Padding(10, 4, 10, 4);
 
-            foreach (var boton in new[] { button9, botonPasar })
-            {
-                boton.FlatStyle = FlatStyle.Flat;
-                boton.FlatAppearance.BorderColor = Color.White;
-                boton.BackColor = Color.FromArgb(200, 20, 20, 20);
-                boton.ForeColor = Color.White;
-                boton.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-                boton.Cursor = Cursors.Hand;
-                boton.AutoSize = true;
-                boton.Padding = new Padding(8, 2, 8, 2);
-            }
-
+            botonPasar.FlatStyle = FlatStyle.Flat;
+            botonPasar.FlatAppearance.BorderColor = Color.White;
+            botonPasar.BackColor = Color.FromArgb(200, 20, 20, 20);
+            botonPasar.ForeColor = Color.White;
+            botonPasar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            botonPasar.Cursor = Cursors.Hand;
+            botonPasar.AutoSize = true;
+            botonPasar.Padding = new Padding(8, 2, 8, 2);
+            
             // Boton "¡UNO!": amarillo con borde negro, como el logo. Solo aparece durante la cuenta.
             botonUno = new Button
             {
@@ -182,10 +179,7 @@ namespace Juego_UNO
         }
 
         // Empezar juego
-        private void button9_Click(object sender, EventArgs e)
-        {
-            EmpezarPartida();
-        }
+
 
         /// <summary>
         /// Pide los nombres, reparte y registra la partida en la base de datos.
@@ -247,7 +241,7 @@ namespace Juego_UNO
             return true;
         }
 
-        private void JugarCarta(int posicion, Carta carta)
+        private void JugarCarta(int posicion, Carta carta, PictureBox pic)
         {
             // Solo puede jugar quien tiene el turno, y no mientras alguien debe decir UNO
             if (posicion != turno || !partidaEnCurso || jugadorEnUno >= 0)
@@ -262,9 +256,8 @@ namespace Juego_UNO
 
             if (!esComodin && !coincideColor && !coincideNumero && !coincideEfecto)
             {
-                MessageBox.Show($"No puedes jugar {carta} sobre {cartaArriba}.\n" +
-                    $"Debe ser color {colorActual}, el mismo número o símbolo, o un comodín.",
-                    "Jugada inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                //aqui va el cambio de color por milisegundos
+                EfectoCartaInvalida(pic);
                 return;
             }
 
@@ -309,6 +302,47 @@ namespace Juego_UNO
                 AnunciarGanador(jugador);
         }
 
+        private async void EfectoCartaInvalida(PictureBox pic)
+        {
+            // Si la carta ya está bloqueada/animándose, ignoramos clics extra
+            if (!pic.Enabled) return;
+
+            // Desactivamos la carta temporalmente para evitar spam de clics
+            pic.Enabled = false;
+
+            // Creamos un evento "Paint" temporal. 
+            // Esto nos permite dibujar SOBRE la imagen de la carta.
+            PaintEventHandler filtroRojo = (sender, e) =>
+            {
+                // Color rojo con opacidad (120 de 255)
+                using (Brush brocha = new SolidBrush(Color.FromArgb(120, 255, 0, 0)))
+                {
+                    e.Graphics.FillRectangle(brocha, pic.ClientRectangle);
+                }
+            };
+
+            try
+            {
+                // Agregamos el filtro y forzamos a que el PictureBox se redibuje
+                pic.Paint += filtroRojo;
+                pic.Invalidate();
+
+                // Esperamos 350 milisegundos (puedes ajustar este tiempo)
+                await Task.Delay(350);
+
+                if (!pic.IsDisposed)
+                {
+                    pic.Paint -= filtroRojo;
+                    pic.Enabled = true;
+                    pic.Invalidate();
+                }
+            }
+            catch
+            {
+                // Se ignora silenciosamente si el usuario cerró el juego a mitad del parpadeo
+            }
+        }
+
         /// <summary>
         /// El jugador en turno pasa sin tirar. Segun las reglas oficiales solo se puede
         /// despues de robar; tambien se permite con el mazo vacio para no quedarse atorado.
@@ -344,7 +378,6 @@ namespace Juego_UNO
                     return null;
 
                 string nuevoColor = ventanaElegirColor.getColor();
-                MessageBox.Show("El nuevo color es: " + nuevoColor);
                 return nuevoColor;
             }
         }
@@ -563,7 +596,7 @@ namespace Juego_UNO
                     BackColor = Color.Transparent,
                     Tag = carta
                 };
-                pic.DoubleClick += (s, e) => JugarCarta(posicion, carta);
+                pic.DoubleClick += (s, e) => JugarCarta(posicion, carta, pic);
                 pic.MouseEnter += (s, e) =>
                 {
                     if (partidaEnCurso && posicion == turno)
@@ -597,7 +630,7 @@ namespace Juego_UNO
         {
             MostrarCartaEnPictureBox(pictureBoxDescarte, cartaArriba, colorActual);
 
-            label1.Text = "Color en juego: " + Capitalizar(colorActual);
+            label1.Text = "Color: " + Capitalizar(colorActual);
             switch (colorActual)
             {
                 case "rojo": label1.BackColor = Color.DarkRed; label1.ForeColor = Color.White; break;
@@ -786,7 +819,7 @@ namespace Juego_UNO
 
             const int margen = 20;
             // "Empezar juego" en la esquina superior derecha
-            button9.Location = new Point(w - button9.Width - margen, margen);
+
 
             int altoEtiqueta = lblJugador1.Height + 6;
             // Espacio de una fila (arriba/abajo) o columna (lados): carta + elevacion + scroll
@@ -802,7 +835,7 @@ namespace Juego_UNO
 
             // Lados: casi toda la altura, porque las filas de arriba y abajo no llegan a los costados.
             // Empiezan debajo del boton "Empezar juego" para que el nombre no se encime con el.
-            int yLado = Math.Max(yArriba, button9.Bottom + 10 + altoEtiqueta);
+            int yLado = yArriba;
             int altoLado = Math.Max(AnchoCarta, h - margen - yLado);
             areasMano[1] = new Rectangle(w - margen - grosorMano, yLado, grosorMano, altoLado);
             areasMano[3] = new Rectangle(margen, yLado, grosorMano, altoLado);
