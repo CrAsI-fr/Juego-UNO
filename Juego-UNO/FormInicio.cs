@@ -21,6 +21,8 @@ namespace Juego_UNO
         private readonly Label etiquetaEstado;
         private bool apiDisponible = false;
         private bool monitoreando = true;
+        // Hay un ciclo de revision de la API corriendo
+        private bool revisando;
 
         public FormInicio()
         {
@@ -113,6 +115,23 @@ namespace Juego_UNO
             await RevisarApi();
         }
         private async Task RevisarApi()
+        {
+            // Si ya hay un ciclo corriendo (por ejemplo, al volver de la mesa en menos de
+            // 2 segundos el ciclo anterior sigue vivo), no se inicia otro
+            if (revisando)
+                return;
+            revisando = true;
+            try
+            {
+                await CicloRevisarApi();
+            }
+            finally
+            {
+                revisando = false;
+            }
+        }
+
+        private async Task CicloRevisarApi()
         {
             while (monitoreando)
             {
